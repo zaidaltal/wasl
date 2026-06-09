@@ -1,0 +1,31 @@
+# Node.js
+node_modules/
+.next/
+.env.local
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP
+/backend/vendor/
+/backend/.env
+/backend/uploads/avatars/*.jpg
+/backend/uploads/avatars/*.jpeg
+/backend/uploads/avatars/*.png
+/backend/uploads/avatars/*.webp
+/backend/uploads/avatars/*.gif
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.idea/
+.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
