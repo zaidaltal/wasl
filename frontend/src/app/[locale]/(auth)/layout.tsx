@@ -1,12 +1,14 @@
 import Link from 'next/link';
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }> | { locale: string };
 }) {
+  const { locale } = params instanceof Promise ? await params : params;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800 flex flex-col">
       <div className="p-6">

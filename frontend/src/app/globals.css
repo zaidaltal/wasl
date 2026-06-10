@@ -17,9 +17,6 @@
     font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
   }
 
-  * {
-    @apply border-border;
-  }
 
   body {
     @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-white;

@@ -1,13 +1,15 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }> | { locale: string };
 }) {
+  const { locale } = params instanceof Promise ? await params : params;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header locale={locale} />

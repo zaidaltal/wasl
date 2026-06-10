@@ -13,7 +13,12 @@ class App
 
     public static function success(mixed $data, string $message = 'Success', int $code = 200): void
     {
-        self::json(['data' => $data, 'message' => $message], $code);
+        // Flatten paginated responses so the client always reads r.data.data for items
+        if (is_array($data) && isset($data['data'], $data['total'], $data['page'])) {
+            self::json(array_merge($data, ['message' => $message]), $code);
+        } else {
+            self::json(['data' => $data, 'message' => $message], $code);
+        }
     }
 
     public static function error(string $message, int $code = 400): void
