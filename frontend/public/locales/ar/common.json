@@ -17,6 +17,10 @@
     "postJob": "انشر وظيفة",
     "about": "عن وصل",
     "contact": "تواصل معنا",
+    "support": "الدعم",
+    "privacy": "سياسة الخصوصية",
+    "legal": "القانوني",
+    "terms": "شروط الخدمة",
     "copyright": "© {year} وصل. جميع الحقوق محفوظة."
   },
   "landing": {
@@ -29,13 +33,16 @@
       "searchBtn": "بحث",
       "ctaFreelancer": "انضم كمستقل",
       "ctaClient": "انشر وظيفة",
+      "findWork": "ابحث عن عمل",
       "stat1": "مستقل نشط",
       "stat2": "وظيفة منشورة",
-      "stat3": "دولة من المنطقة"
+      "stat3": "دولة من المنطقة",
+      "stat4": "شركة توظف"
     },
     "categories": {
       "title": "استكشف التصنيفات",
-      "subtitle": "ابحث عن محترفين موهوبين في كل مجال وتخصص"
+      "subtitle": "ابحث عن محترفين موهوبين في كل مجال وتخصص",
+      "viewAll": "عرض كل التصنيفات"
     },
     "featured": {
       "title": "مستقلون مميزون",
@@ -63,6 +70,7 @@
     }
   },
   "auth": {
+    "tagline": "حيث تلتقي مواهب المنطقة بالفرص.",
     "loginTitle": "أهلاً وسهلاً",
     "loginSubtitle": "سجل الدخول إلى حساب وصل",
     "registerTitle": "إنشاء حساب",
@@ -83,12 +91,33 @@
     "registerSuccess": "تم إنشاء الحساب بنجاح!",
     "registerError": "فشل التسجيل. حاول مرة أخرى.",
     "freelancer": "أنا مستقل",
-    "client": "أبحث عن موظفين"
+    "client": "أبحث عن موظفين",
+    "freelancerDesc": "أبحث عن عمل",
+    "clientDesc": "أوظّف لمشروع",
+    "roleQuestion": "أريد الانضمام كـ:",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "orDivider": "أو",
+    "orRegisterWith": "أو سجّل عبر",
+    "continueGoogle": "المتابعة عبر جوجل",
+    "google": "جوجل",
+    "apple": "آبل",
+    "termsAgree": "أوافق على شروط الخدمة وسياسة الخصوصية.",
+    "newToWasl": "جديد على وصل؟"
   },
   "jobs": {
     "pageTitle": "تصفح الوظائف",
     "pageSubtitle": "{count} وظيفة متاحة",
+    "viewJob": "عرض الوظيفة",
+    "saveJob": "حفظ الوظيفة",
+    "budgetLabel": "الميزانية",
+    "postedLabel": "تاريخ النشر",
+    "status": "الحالة",
+    "aboutClient": "عن العميل",
     "searchPlaceholder": "ابحث عن وظائف بالعنوان أو الكلمة المفتاحية...",
+    "search": "بحث",
+    "filters": "التصفية",
+    "category": "التصنيف",
+    "country": "الدولة",
     "allCategories": "جميع التصنيفات",
     "allCountries": "جميع الدول",
     "reset": "إعادة تعيين",
@@ -109,7 +138,10 @@
     "cancel": "إلغاء",
     "submitApplication": "تقديم الطلب",
     "applySuccess": "تم تقديم الطلب بنجاح!",
-    "applyError": "فشل تقديم الطلب."
+    "applyError": "فشل تقديم الطلب.",
+    "share": "مشاركة",
+    "linkCopied": "تم نسخ الرابط!",
+    "proposedRate": "السعر المقترح (دولار)"
   },
   "freelancers": {
     "pageTitle": "ابحث عن مستقلين",
@@ -161,6 +193,15 @@
     "myJobs": "وظائفي المنشورة",
     "noJobs": "لم تنشر أي وظائف بعد.",
     "applicants": "متقدم",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "jobCompany": "الوظيفة",
+    "profileCompletion": "اكتمال الملف الشخصي",
+    "almostThere": "واصل التقدم!",
+    "updateProfile": "تحديث الملف",
+    "findNextJob": "اعثر على فرصتك القادمة",
+    "findNextJobDesc": "مئات الوظائف الجديدة تُنشر في منطقة الشرق الأوسط كل أسبوع. لا تفوّت الفرصة.",
+    "explorJobs": "استكشف الوظائف",
     "postJob": "انشر وظيفة",
     "postJobTitle": "نشر وظيفة جديدة",
     "jobTitle": "عنوان الوظيفة",

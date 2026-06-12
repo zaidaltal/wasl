@@ -104,30 +104,53 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('title')}</h1>
-
-      <div className="space-y-6">
-        {/* Avatar */}
-        <Card>
-          <CardHeader><h3 className="font-semibold text-gray-900 dark:text-white">{t('photo')}</h3></CardHeader>
-          <CardBody className="flex items-center gap-6">
-            <div className="relative">
-              <Avatar src={user.avatar} name={user.name} size="xl" />
+    <div className="pb-10">
+      {/* Profile cover header — Stitch style */}
+      <div className="relative mb-10">
+        <div className="h-[180px] bg-gradient-to-br from-primary-900 via-primary-700 to-primary-600 overflow-hidden relative">
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+            }}
+            aria-hidden
+          />
+          <span className="absolute -end-6 -top-12 text-[180px] font-extrabold text-white/5 select-none pointer-events-none font-arabic leading-none" aria-hidden>
+            وصل
+          </span>
+        </div>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative -mt-14">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-5">
+            <div className="relative shrink-0">
+              <div className="w-28 h-28 rounded-xl border-4 border-white dark:border-night-bg shadow-md bg-white dark:bg-night-card overflow-hidden flex items-center justify-center">
+                <Avatar src={user.avatar} name={user.name} size="xl" />
+              </div>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-1 -end-1 w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700 transition-colors"
+                className="absolute -bottom-2 -end-2 w-9 h-9 bg-primary-600 rounded-full flex items-center justify-center text-white hover:bg-primary-700 shadow-lg transition-colors"
+                aria-label={t('photo')}
               >
-                <Camera size={13} />
+                <Camera size={15} />
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 capitalize">{user.role}</p>
+            <div className="flex-1 pb-1">
+              <div className="flex flex-wrap items-center gap-3 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-ink dark:text-white">{user.name}</h1>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-success-100 text-success-700 dark:bg-success-900/40 dark:text-success-400 text-xs font-bold rounded-full capitalize">
+                  {user.role}
+                </span>
+              </div>
+              <p className="text-text-muted text-sm">{t('title')}</p>
             </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-6">
 
         {/* Basic info */}
         <Card>
@@ -161,9 +184,9 @@ export default function ProfilePage() {
               <CardBody className="space-y-3">
                 <div className="flex flex-wrap gap-2">
                   {form.skills.map((skill, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-3 py-1 rounded-full text-sm">
+                    <span key={i} className="inline-flex items-center gap-1.5 bg-secondary-container dark:bg-night-border text-on-secondary-fixed-variant dark:text-gray-300 px-4 py-1.5 rounded-full text-sm font-medium">
                       {skill}
-                      <button onClick={() => setForm({ ...form, skills: form.skills.filter((_, j) => j !== i) })} className="hover:text-red-500 transition-colors"><X size={12} /></button>
+                      <button onClick={() => setForm({ ...form, skills: form.skills.filter((_, j) => j !== i) })} className="hover:text-primary-600 transition-colors duration-150" aria-label={`Remove ${skill}`}><X size={12} /></button>
                     </span>
                   ))}
                 </div>
@@ -207,6 +230,7 @@ export default function ProfilePage() {
         <div className="flex justify-end">
           <Button onClick={handleSave} loading={saving} size="lg">{t('save')}</Button>
         </div>
+      </div>
       </div>
     </div>
   );

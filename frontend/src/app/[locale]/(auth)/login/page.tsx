@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { SocialSignIn } from '@/components/auth/SocialButtons';
 
 const schema = z.object({
   email: z.string().email(),
@@ -46,41 +47,55 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-md p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('loginTitle')}</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">{t('loginSubtitle')}</p>
+    <Card className="w-full max-w-[420px] p-8 sm:p-10 animate-slide-up">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-ink dark:text-white">{t('loginTitle')}</h1>
+        <p className="text-muted dark:text-gray-400 mt-2 text-sm">
+          {t('newToWasl')}{' '}
+          <Link href={`/${locale}/register`} className="text-brand-blue dark:text-primary-300 font-bold hover:underline">
+            {t('registerLink')}
+          </Link>
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label={t('email')}
           type="email"
-          placeholder="you@example.com"
+          placeholder="name@company.com"
           icon={<Mail size={16} />}
           error={errors.email?.message}
           {...register('email')}
         />
-        <Input
-          label={t('password')}
-          type="password"
-          placeholder="••••••••"
-          icon={<Lock size={16} />}
-          error={errors.password?.message}
-          {...register('password')}
-        />
+        <div>
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="block text-sm font-medium text-ink dark:text-gray-200">{t('password')}</span>
+            <button type="button" className="text-xs font-bold text-brand-blue dark:text-primary-300 hover:underline">
+              {t('forgotPassword')}
+            </button>
+          </div>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            icon={<Lock size={16} />}
+            error={errors.password?.message}
+            {...register('password')}
+          />
+        </div>
 
-        <Button type="submit" className="w-full mt-2" loading={loading} size="lg">
+        <Button type="submit" fullWidth className="mt-2" loading={loading} size="lg">
           {t('loginBtn')}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-        {t('noAccount')}{' '}
-        <Link href={`/${locale}/register`} className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-          {t('registerLink')}
-        </Link>
-      </p>
+      {/* Divider */}
+      <div className="flex items-center my-6">
+        <div className="flex-1 h-px bg-line dark:bg-night-border" />
+        <span className="px-4 text-sm text-muted">{t('orDivider')}</span>
+        <div className="flex-1 h-px bg-line dark:bg-night-border" />
+      </div>
+
+      <SocialSignIn />
     </Card>
   );
 }

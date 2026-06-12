@@ -2,38 +2,42 @@
 
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Button } from '@/components/ui/Button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export function CtaSection() {
   const t = useTranslations('landing.cta');
   const locale = useLocale();
   const router = useRouter();
-  const isRtl = locale === 'ar';
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
   return (
-    <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-800 text-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('title')}</h2>
-        <p className="text-primary-200 text-lg mb-10 max-w-2xl mx-auto">{t('subtitle')}</p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            size="lg"
-            className="bg-white text-primary-700 hover:bg-gray-50 font-semibold gap-2"
-            onClick={() => router.push(`/${locale}/register?role=freelancer`)}
-          >
-            {t('freelancerBtn')}
-            <ArrowIcon size={18} />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-white text-white hover:bg-white/10"
-            onClick={() => router.push(`/${locale}/register?role=client`)}
-          >
-            {t('clientBtn')}
-          </Button>
+    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-night-bg">
+      <div className="max-w-content mx-auto bg-cta rounded-[32px] p-10 sm:p-20 relative overflow-hidden reveal">
+        {/* وصل watermark */}
+        <span
+          className="absolute -end-[5%] -top-[15%] text-[16rem] sm:text-[20rem] font-extrabold text-white/5 select-none pointer-events-none font-arabic leading-none"
+          aria-hidden
+        >
+          وصل
+        </span>
+
+        <div className="relative z-10 text-center">
+          <h2 className="text-3xl sm:text-[2.75rem] font-extrabold leading-tight text-white mb-6 max-w-2xl mx-auto">
+            {t('title')}
+          </h2>
+          <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto leading-relaxed">{t('subtitle')}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => router.push(`/${locale}/register?role=client`)}
+              className="bg-white text-cta px-10 py-4 rounded-full font-bold hover:bg-opacity-90 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg"
+            >
+              {t('clientBtn')}
+            </button>
+            <button
+              onClick={() => router.push(`/${locale}/register?role=freelancer`)}
+              className="border-2 border-white text-white px-10 py-4 rounded-full font-bold hover:bg-white hover:text-cta hover:scale-[1.03] active:scale-[0.97] transition-all"
+            >
+              {t('freelancerBtn')}
+            </button>
+          </div>
         </div>
       </div>
     </section>

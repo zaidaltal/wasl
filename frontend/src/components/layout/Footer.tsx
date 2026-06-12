@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Logo } from './Logo';
 
 interface FooterProps {
   locale: string;
@@ -8,46 +9,51 @@ interface FooterProps {
 export function Footer({ locale }: FooterProps) {
   const t = useTranslations('footer');
 
+  const linkCls =
+    'text-on-tertiary-container opacity-80 hover:text-on-primary hover:opacity-100 transition-opacity text-sm';
+
   return (
-    <footer className="bg-gray-900 dark:bg-gray-950 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">و</span>
-              </div>
-              <span className="text-xl font-bold text-white">Wasl</span>
-              <span className="text-primary-400 font-medium">وصل</span>
-            </div>
-            <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
-              {t('description')}
-            </p>
-          </div>
+    <footer className="bg-text-primary dark:bg-inverse-surface border-t-4 border-primary">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop py-section-gap w-full max-w-container-max mx-auto">
 
-          {/* Links */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('platform')}</h4>
-            <ul className="space-y-2">
-              <li><Link href={`/${locale}/jobs`} className="text-sm text-gray-400 hover:text-white transition-colors">{t('browseJobs')}</Link></li>
-              <li><Link href={`/${locale}/freelancers`} className="text-sm text-gray-400 hover:text-white transition-colors">{t('findFreelancers')}</Link></li>
-              <li><Link href={`/${locale}/register`} className="text-sm text-gray-400 hover:text-white transition-colors">{t('postJob')}</Link></li>
-            </ul>
+        {/* Brand */}
+        <div className="col-span-1">
+          <div className="mb-6">
+            <Logo locale={locale} variant="dark" />
           </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('company')}</h4>
-            <ul className="space-y-2">
-              <li><Link href={`/${locale}`} className="text-sm text-gray-400 hover:text-white transition-colors">{t('about')}</Link></li>
-              <li><a href="mailto:hello@wasl.jo" className="text-sm text-gray-400 hover:text-white transition-colors">{t('contact')}</a></li>
-            </ul>
-          </div>
+          <p className="text-on-tertiary-container opacity-80 text-sm leading-relaxed max-w-xs">
+            {t('description')}
+          </p>
         </div>
 
-        <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-500">{t('copyright', { year: new Date().getFullYear() })}</p>
-          <p className="text-xs text-gray-500">Built with ❤️ for the MENA region</p>
+        {/* Platform */}
+        <div>
+          <h5 className="text-on-primary font-bold mb-6">{t('platform')}</h5>
+          <ul className="space-y-4">
+            <li><Link href={`/${locale}`}           className={linkCls}>{t('about')}</Link></li>
+            <li><Link href={`/${locale}/jobs`}       className={linkCls}>{t('browseJobs')}</Link></li>
+            <li><Link href={`/${locale}/freelancers`}className={linkCls}>{t('findFreelancers')}</Link></li>
+          </ul>
+        </div>
+
+        {/* Support */}
+        <div>
+          <h5 className="text-on-primary font-bold mb-6">{t('support')}</h5>
+          <ul className="space-y-4">
+            <li><a href={`mailto:hello@wasl.jo`}    className={linkCls}>{t('contact')}</a></li>
+            <li><Link href={`/${locale}`}            className={linkCls}>{t('privacy')}</Link></li>
+          </ul>
+        </div>
+
+        {/* Legal */}
+        <div>
+          <h5 className="text-on-primary font-bold mb-6">{t('legal')}</h5>
+          <ul className="space-y-4">
+            <li><Link href={`/${locale}`} className={linkCls}>{t('terms')}</Link></li>
+            <li className="text-on-tertiary-container opacity-50 text-xs mt-8">
+              {t('copyright', { year: new Date().getFullYear() })}
+            </li>
+          </ul>
         </div>
       </div>
     </footer>

@@ -13,7 +13,7 @@ export default async function MainLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <Header locale={locale} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 mt-[60px]">{children}</main>
       <Footer locale={locale} />
     </div>
   );

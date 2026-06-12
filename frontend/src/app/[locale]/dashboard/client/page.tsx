@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Briefcase, Users, PlusCircle, Edit, Trash2, Eye } from 'lucide-react';
+import { Briefcase, Users, PlusCircle, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import { jobsApi, applicationsApi } from '@/lib/api';
@@ -14,8 +14,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { Input, Textarea, Select } from '@/components/ui/Input';
-import { formatDate, formatCurrency } from '@/lib/utils';
+import { Input, Textarea } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { formatDate } from '@/lib/utils';
 
 export default function ClientDashboard() {
   const t = useTranslations('dashboard');
@@ -86,89 +87,124 @@ export default function ClientDashboard() {
 
   if (!user) return null;
 
+  const statCards = [
+    { label: t('totalJobs'), value: jobs.length, icon: <Briefcase size={18} />, accent: 'border-primary-600', iconColor: 'text-primary-600', caption: t('clientDashboard') },
+    { label: t('openJobs'), value: jobs.filter((j) => j.status === 'open').length, icon: <PlusCircle size={18} />, accent: 'border-success-600', iconColor: 'text-success-600', caption: t('myJobs') },
+    { label: t('totalApplicants'), value: jobs.reduce((s, j) => s + (j.applications_count || 0), 0), icon: <Users size={18} />, accent: 'border-ink dark:border-white', iconColor: 'text-ink dark:text-white', caption: t('applicants') },
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Avatar src={user.avatar} name={user.name} size="lg" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('hello', { name: user.name })}</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('clientDashboard')}</p>
+            <h1 className="text-2xl font-bold text-ink dark:text-white">{t('hello', { name: user.name })}</h1>
+            <p className="text-text-muted dark:text-gray-400 text-sm">{t('clientDashboard')}</p>
           </div>
         </div>
-        <Button onClick={() => setPostOpen(true)}>
+        <button
+          onClick={() => setPostOpen(true)}
+          className="inline-flex items-center justify-center gap-1.5 bg-primary-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:shadow-lg active:scale-95 transition-all"
+        >
           <PlusCircle size={16} /> {t('postJob')}
-        </Button>
+        </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-        {[
-          { label: t('totalJobs'), value: jobs.length, icon: <Briefcase size={18} />, color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30' },
-          { label: t('openJobs'), value: jobs.filter((j) => j.status === 'open').length, icon: <PlusCircle size={18} />, color: 'text-green-600 bg-green-100 dark:bg-green-900/30' },
-          { label: t('totalApplicants'), value: jobs.reduce((s, j) => s + (j.applications_count || 0), 0), icon: <Users size={18} />, color: 'text-purple-600 bg-purple-100 dark:bg-purple-900/30' },
-        ].map((stat, i) => (
-          <Card key={i} className="p-5">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}>{stat.icon}</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{stat.label}</div>
-          </Card>
+      {/* Stats — bento cards with colored bottom borders */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        {statCards.map((stat, i) => (
+          <div
+            key={i}
+            className={`bg-white dark:bg-night-card p-6 rounded-xl shadow-card border-b-4 ${stat.accent} hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-text-muted text-xs font-bold uppercase tracking-wider">{stat.label}</span>
+              <span className={stat.iconColor}>{stat.icon}</span>
+            </div>
+            <p className="text-5xl font-bold tracking-tight text-ink dark:text-white leading-none mt-3">{stat.value}</p>
+            <p className="text-xs text-text-muted mt-3">{stat.caption}</p>
+          </div>
         ))}
       </div>
 
-      {/* Jobs */}
-      <Card>
-        <CardHeader className="flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900 dark:text-white">{t('myJobs')}</h2>
-        </CardHeader>
-        <CardBody className="p-0">
-          {loading ? (
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
-              {[...Array(3)].map((_, i) => <div key={i} className="h-16 animate-pulse bg-gray-50 dark:bg-gray-700/20" />)}
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="text-center py-16">
-              <Briefcase size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
-              <p className="text-gray-500 dark:text-gray-400">{t('noJobs')}</p>
-              <Button size="sm" className="mt-4" onClick={() => setPostOpen(true)}>{t('postJob')}</Button>
-            </div>
-          ) : (
-            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
-              {jobs.map((job) => (
-                <li key={job.id} className="flex items-center justify-between gap-4 px-6 py-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Link href={`/${locale}/jobs/${job.id}`} className="font-medium text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm truncate">
+      {/* Jobs table */}
+      <div className="bg-white dark:bg-night-card rounded-xl shadow-card border border-outline-variant/50 dark:border-night-border overflow-hidden">
+        <div className="px-6 py-5 border-b border-line dark:border-night-border flex items-center justify-between">
+          <h2 className="text-lg font-bold text-ink dark:text-white">{t('myJobs')}</h2>
+        </div>
+        {loading ? (
+          <div className="p-6 space-y-4">
+            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-12" />)}
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-16">
+            <Briefcase size={40} className="mx-auto text-muted mb-3" />
+            <p className="text-text-muted dark:text-gray-400">{t('noJobs')}</p>
+            <Button size="sm" className="mt-4" onClick={() => setPostOpen(true)}>{t('postJob')}</Button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-start">
+              <thead className="bg-surface-container-low dark:bg-night-bg/50">
+                <tr className="text-start">
+                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-start">{t('jobTitle')}</th>
+                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center">{t('status')}</th>
+                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center">{t('applicants')}</th>
+                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-end" aria-label="actions"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line dark:divide-night-border">
+                {jobs.map((job) => (
+                  <tr key={job.id} className="hover:bg-surface-container/60 dark:hover:bg-night-border/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <Link
+                        href={`/${locale}/jobs/${job.id}`}
+                        className="font-bold text-ink dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm transition-colors block truncate max-w-xs"
+                      >
                         {job.title}
                       </Link>
-                      <Badge variant={job.status === 'open' ? 'success' : 'default'}>{tJobs(job.status)}</Badge>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {formatDate(job.created_at, locale)} · {job.applications_count || 0} {t('applicants')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => viewApplicants(job)} className="p-1.5 text-gray-400 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <Eye size={15} />
-                    </button>
-                    <button onClick={() => handleDelete(job.id)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardBody>
-      </Card>
+                      <p className="text-xs text-text-muted mt-0.5">{formatDate(job.created_at, locale)}</p>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <Badge variant={job.status === 'open' ? 'success' : 'neutral'}>{tJobs(job.status)}</Badge>
+                    </td>
+                    <td className="px-6 py-4 text-center font-bold text-ink dark:text-white text-sm">
+                      {job.applications_count || 0}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => viewApplicants(job)}
+                          aria-label={t('noApplicants')}
+                          className="p-2 text-text-muted hover:text-primary-600 transition-colors rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(job.id)}
+                          aria-label={t('jobDeleted')}
+                          className="p-2 text-text-muted hover:text-error transition-colors rounded-lg hover:bg-error-container/40 dark:hover:bg-error/10"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Post Job Modal */}
       <Modal open={postOpen} onClose={() => setPostOpen(false)} title={t('postJobTitle')} size="lg">
         <div className="space-y-4">
           <Input label={t('jobTitle')} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           <Textarea label={t('jobDescription')} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={5} />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label={t('budget')} type="number" placeholder="USD" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
             <Input label={t('country')} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
           </div>
@@ -186,19 +222,23 @@ export default function ClientDashboard() {
         ) : (
           <ul className="space-y-3">
             {applicants.map((app) => (
-              <li key={app.id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                <div className="flex items-center gap-3">
+              <li key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-ivory dark:bg-night-bg rounded-card border border-line dark:border-night-border">
+                <div className="flex items-center gap-3 min-w-0">
                   <Avatar src={app.freelancer?.avatar} name={app.freelancer?.name || 'F'} size="sm" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{app.freelancer?.name}</p>
-                    {app.cover_letter && <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 max-w-xs">{app.cover_letter}</p>}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink dark:text-white truncate">{app.freelancer?.name}</p>
+                    {app.cover_letter && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 max-w-xs">{app.cover_letter}</p>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={app.status === 'accepted' ? 'success' : app.status === 'rejected' ? 'danger' : 'warning'}>{t(app.status)}</Badge>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge variant={app.status === 'accepted' ? 'success' : app.status === 'rejected' ? 'error' : 'warning'}>
+                    {t(app.status)}
+                  </Badge>
                   {app.status === 'pending' && (
                     <>
-                      <Button size="sm" variant="secondary" onClick={() => handleApplicationStatus(app.id, 'accepted')}>{t('accept')}</Button>
+                      <Button size="sm" onClick={() => handleApplicationStatus(app.id, 'accepted')}>{t('accept')}</Button>
                       <Button size="sm" variant="danger" onClick={() => handleApplicationStatus(app.id, 'rejected')}>{t('reject')}</Button>
                     </>
                   )}

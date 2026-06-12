@@ -10,14 +10,15 @@ interface AvatarProps {
 }
 
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
-  const sizes = { sm: 32, md: 40, lg: 56, xl: 80 };
-  const textSizes = { sm: 'text-xs', md: 'text-sm', lg: 'text-base', xl: 'text-xl' };
+  const sizes = { sm: 32, md: 40, lg: 64, xl: 96 };
+  const textSizes = { sm: 'text-xs', md: 'text-sm', lg: 'text-lg', xl: 'text-2xl' };
   const px = sizes[size];
 
   return (
     <div
       className={cn(
-        'relative rounded-full overflow-hidden bg-primary-600 flex items-center justify-center flex-shrink-0',
+        'relative rounded-full overflow-hidden bg-ink dark:bg-night-border flex items-center justify-center flex-shrink-0',
+        'ring-1 ring-line dark:ring-night-border',
         textSizes[size],
         className
       )}

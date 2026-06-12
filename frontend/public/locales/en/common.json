@@ -15,8 +15,12 @@
     "browseJobs": "Browse Jobs",
     "findFreelancers": "Find Freelancers",
     "postJob": "Post a Job",
-    "about": "About",
-    "contact": "Contact Us",
+    "about": "About Us",
+    "contact": "Contact",
+    "support": "Support",
+    "privacy": "Privacy Policy",
+    "legal": "Legal",
+    "terms": "Terms of Service",
     "copyright": "© {year} Wasl. All rights reserved."
   },
   "landing": {
@@ -29,13 +33,16 @@
       "searchBtn": "Search",
       "ctaFreelancer": "Join as Freelancer",
       "ctaClient": "Post a Job",
+      "findWork": "Find Work",
       "stat1": "Active Freelancers",
       "stat2": "Jobs Posted",
-      "stat3": "MENA Countries"
+      "stat3": "MENA Countries",
+      "stat4": "Companies Hiring"
     },
     "categories": {
       "title": "Explore Categories",
-      "subtitle": "Find skilled professionals across every industry and specialty"
+      "subtitle": "Find skilled professionals across every industry and specialty",
+      "viewAll": "View all categories"
     },
     "featured": {
       "title": "Featured Freelancers",
@@ -63,6 +70,7 @@
     }
   },
   "auth": {
+    "tagline": "Where MENA talent meets opportunity.",
     "loginTitle": "Welcome Back",
     "loginSubtitle": "Sign in to your Wasl account",
     "registerTitle": "Create Account",
@@ -83,12 +91,33 @@
     "registerSuccess": "Account created successfully!",
     "registerError": "Registration failed. Please try again.",
     "freelancer": "I'm a Freelancer",
-    "client": "I'm Hiring"
+    "client": "I'm Hiring",
+    "freelancerDesc": "Looking for work",
+    "clientDesc": "Hiring for a project",
+    "roleQuestion": "I want to join as:",
+    "forgotPassword": "Forgot password?",
+    "orDivider": "or",
+    "orRegisterWith": "Or register with",
+    "continueGoogle": "Continue with Google",
+    "google": "Google",
+    "apple": "Apple",
+    "termsAgree": "I agree to the Terms of Service and Privacy Policy.",
+    "newToWasl": "New to Wasl?"
   },
   "jobs": {
     "pageTitle": "Browse Jobs",
     "pageSubtitle": "{count} open positions available",
+    "viewJob": "View Job",
+    "saveJob": "Save Job",
+    "budgetLabel": "Budget",
+    "postedLabel": "Posted",
+    "status": "Status",
+    "aboutClient": "About the Client",
     "searchPlaceholder": "Search jobs by title or keyword...",
+    "search": "Search",
+    "filters": "Filters",
+    "category": "Category",
+    "country": "Country",
     "allCategories": "All Categories",
     "allCountries": "All Countries",
     "reset": "Reset",
@@ -109,7 +138,10 @@
     "cancel": "Cancel",
     "submitApplication": "Submit Application",
     "applySuccess": "Application submitted successfully!",
-    "applyError": "Failed to submit application."
+    "applyError": "Failed to submit application.",
+    "share": "Share",
+    "linkCopied": "Link copied to clipboard!",
+    "proposedRate": "Proposed Rate (USD)"
   },
   "freelancers": {
     "pageTitle": "Find Freelancers",
@@ -161,6 +193,15 @@
     "myJobs": "My Job Listings",
     "noJobs": "You haven't posted any jobs yet.",
     "applicants": "applicants",
+    "status": "Status",
+    "date": "Date",
+    "jobCompany": "Job",
+    "profileCompletion": "Profile Completion",
+    "almostThere": "Keep it up!",
+    "updateProfile": "Update Profile",
+    "findNextJob": "Find your next opportunity",
+    "findNextJobDesc": "Hundreds of new jobs are posted across the MENA region every week. Don't miss out.",
+    "explorJobs": "Explore Jobs",
     "postJob": "Post a Job",
     "postJobTitle": "Post a New Job",
     "jobTitle": "Job Title",

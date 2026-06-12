@@ -29,3 +29,9 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Local MCP config (contains API keys) - do not commit
+.mcp.json
+
+# Stitch reference exports (local only)
+.stitch_assets/
