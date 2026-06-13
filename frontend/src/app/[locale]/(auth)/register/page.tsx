@@ -49,7 +49,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const res = await authApi.register(data);
-      const { token, user } = res.data;
+      const { token, user } = res.data.data;
       setAuth(token, user);
       updateUser(user);
       toast.success(t('registerSuccess'));
