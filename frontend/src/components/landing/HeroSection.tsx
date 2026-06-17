@@ -56,7 +56,8 @@ export function HeroSection() {
           {/* Left Content */}
           <div className="reveal">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container text-primary text-sm font-bold mb-6">
-              <span className="text-lg" aria-hidden>🌍</span> {t('badge')}
+              <span className="material-symbols-outlined select-none" style={{ fontSize: '16px' }}>public</span>
+              {t('badge')}
             </span>
 
             <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-tight text-text-primary dark:text-white mb-6">
@@ -119,12 +120,18 @@ export function HeroSection() {
                     Available
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {card.skills.map((s) => (
                     <span key={s} className="bg-surface-container dark:bg-night-border text-on-surface-variant dark:text-gray-300 px-2 py-1 rounded text-xs">
                       {s}
                     </span>
                   ))}
+                </div>
+                <div className="flex items-center gap-1 pt-3 border-t border-outline-variant/30">
+                  {[1,2,3,4,5].map((i) => (
+                    <span key={i} className="material-symbols-outlined text-amber-400 select-none" style={{ fontSize: '13px', fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}>star</span>
+                  ))}
+                  <span className="text-xs text-text-muted ms-1">5.0</span>
                 </div>
               </div>
             ))}

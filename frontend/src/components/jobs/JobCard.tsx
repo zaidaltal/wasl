@@ -20,8 +20,8 @@ export function JobCard({ job, className }: JobCardProps) {
   return (
     <article
       className={cn(
-        'group bg-white dark:bg-night-card p-6 rounded-xl border border-outline-variant/60 dark:border-night-border shadow-sm',
-        'hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:border-primary-600/30 transition-all duration-300 relative overflow-hidden',
+        'group cursor-pointer bg-white dark:bg-night-card p-6 rounded-xl border border-outline-variant/60 dark:border-night-border shadow-sm',
+        'hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 relative overflow-hidden',
         className
       )}
     >
