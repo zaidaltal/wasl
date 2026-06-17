@@ -1,7 +1,8 @@
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export function HowItWorksSection() {
   const t = useTranslations('landing.howItWorks');
+  const locale = useLocale();
 
   const steps = [
     { title: t('step1Title'), desc: t('step1Desc'), symbol: 'post_add',  num: '01' },
@@ -13,6 +14,9 @@ export function HowItWorksSection() {
     <section className="bg-[#F7F8FA] dark:bg-night-bg py-section-gap px-margin-desktop overflow-hidden">
       <div className="max-w-container-max mx-auto">
         <div className="text-center mb-20 reveal">
+          <span className="inline-block text-accent font-bold text-sm uppercase tracking-widest mb-2">
+            {locale === 'ar' ? 'كيف نعمل' : 'The Process'}
+          </span>
           <h2 className="text-3xl sm:text-[2rem] font-bold text-text-primary dark:text-white mb-4">
             {t('title')}
           </h2>
@@ -38,12 +42,17 @@ export function HowItWorksSection() {
               >
                 {step.num}
               </span>
-              <div className="w-20 h-20 bg-surface-white dark:bg-night-card shadow-xl rounded-full flex items-center justify-center mb-8 z-10 border border-outline-variant dark:border-night-border">
-                <span
-                  className="material-symbols-outlined text-primary dark:text-primary-300 select-none"
-                  style={{ fontSize: '36px' }}
-                >
-                  {step.symbol}
+              <div className="relative mb-8 z-10">
+                <div className="w-20 h-20 bg-brand-gradient shadow-xl shadow-accent/20 rounded-2xl rotate-3 flex items-center justify-center group-hover:rotate-0 transition-transform duration-300">
+                  <span
+                    className="material-symbols-outlined text-white select-none"
+                    style={{ fontSize: '36px' }}
+                  >
+                    {step.symbol}
+                  </span>
+                </div>
+                <span className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-success text-white text-xs font-bold flex items-center justify-center shadow-md border-2 border-white dark:border-night-bg">
+                  {step.num.replace('0', '')}
                 </span>
               </div>
               <h4 className="text-lg font-bold text-text-primary dark:text-white mb-4 relative z-10">

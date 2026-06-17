@@ -51,18 +51,42 @@ export function HeroSection() {
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-section-gap pb-section-gap px-margin-desktop">
-        <div className="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-[55%_45%] items-center gap-12">
+        {/* Ambient background: brand glow + dot grid */}
+        <div
+          className="absolute -top-32 -start-32 w-[480px] h-[480px] rounded-full bg-accent/10 dark:bg-accent/15 blur-3xl animate-glow-pulse pointer-events-none"
+          aria-hidden
+        />
+        <div
+          className="absolute top-1/4 end-0 w-[420px] h-[420px] rounded-full bg-primary-container/10 blur-3xl animate-glow-pulse pointer-events-none"
+          style={{ animationDelay: '-2.5s' }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 opacity-[0.4] dark:opacity-20 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%)',
+          }}
+          aria-hidden
+        />
+
+        <div className="relative max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-[55%_45%] items-center gap-12">
 
           {/* Left Content */}
           <div className="reveal">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container text-primary text-sm font-bold mb-6">
-              <span className="material-symbols-outlined select-none" style={{ fontSize: '16px' }}>public</span>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 dark:bg-night-card/70 backdrop-blur-sm border border-accent/20 text-accent-dark dark:text-accent-light text-sm font-bold mb-6 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
+              </span>
               {t('badge')}
             </span>
 
             <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-tight text-text-primary dark:text-white mb-6">
               {t('title')}{' '}
-              <span className="text-primary-container">{t('titleHighlight')}</span>
+              <span className="bg-brand-gradient-soft bg-clip-text text-transparent">{t('titleHighlight')}</span>
             </h1>
 
             <p className="text-text-muted dark:text-gray-300 text-lg mb-10 max-w-lg leading-relaxed">
@@ -89,11 +113,30 @@ export function HeroSection() {
                 />
                 <button
                   onClick={() => router.push(`/${locale}/jobs`)}
-                  className="bg-primary-container text-on-primary px-8 py-3 rounded-full font-bold text-sm hover:bg-primary active:scale-95 transition-all whitespace-nowrap"
+                  className="bg-brand-gradient-soft text-on-primary px-8 py-3 rounded-full font-bold text-sm hover:opacity-90 active:scale-95 transition-all whitespace-nowrap shadow-md shadow-accent/20"
                 >
                   {t('searchBtn')}
                 </button>
               </div>
+            </div>
+
+            {/* Popular searches */}
+            <div className="flex flex-wrap items-center gap-2 mt-6 text-sm">
+              <span className="text-text-muted font-medium">
+                {locale === 'ar' ? 'الأكثر طلباً:' : 'Popular:'}
+              </span>
+              {(locale === 'ar'
+                ? ['تطوير الويب', 'تصميم', 'التسويق', 'الكتابة']
+                : ['Web Dev', 'Design', 'Marketing', 'Writing']
+              ).map((term) => (
+                <button
+                  key={term}
+                  onClick={() => router.push(`/${locale}/jobs?search=${encodeURIComponent(term)}`)}
+                  className="cursor-pointer px-3 py-1 rounded-full bg-surface-container dark:bg-night-card text-text-secondary dark:text-gray-300 hover:bg-accent-soft hover:text-accent-dark dark:hover:bg-accent/20 transition-colors duration-200"
+                >
+                  {term}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -140,17 +183,32 @@ export function HeroSection() {
       </section>
 
       {/* Stats Bar */}
-      <div className="bg-text-primary dark:bg-night-card border-t-[3px] border-primary px-margin-desktop py-12">
-        <div className="max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="relative bg-brand-gradient px-margin-desktop py-14 overflow-hidden">
+        {/* Texture overlay */}
+        <div
+          className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+          aria-hidden
+        />
+        <span
+          className="absolute -end-4 -bottom-16 text-[12rem] font-extrabold text-white/5 select-none pointer-events-none font-arabic leading-none"
+          aria-hidden
+        >
+          وصل
+        </span>
+        <div className="relative max-w-container-max mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/10 rtl:divide-x-reverse">
           {stats.map((stat, i) => (
-            <div key={i} className="text-center reveal" style={{ transitionDelay: `${i * 0.1}s` }}>
+            <div key={i} className="text-center reveal px-2" style={{ transitionDelay: `${i * 0.1}s` }}>
               <div
                 className="text-3xl sm:text-4xl font-extrabold text-white mb-1"
                 data-count={stat.count}
               >
                 {stat.count.toLocaleString()}+
               </div>
-              <div className="text-text-muted uppercase tracking-widest text-[10px] font-bold">
+              <div className="text-white/60 uppercase tracking-widest text-[10px] font-bold">
                 {stat.label}
               </div>
             </div>

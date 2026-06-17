@@ -90,6 +90,12 @@ module.exports = {
         'background':    '#f8f9fb',
         'on-background': '#191c1e',
 
+        // ── ACCENT (creative indigo — freelancer-platform signature) ──
+        'accent':        '#6366F1',
+        'accent-light':  '#818CF8',
+        'accent-dark':   '#4f46e5',
+        'accent-soft':   '#EEF2FF',
+
         // ── STATUS ───────────────────────────────────────────────────
         'success':           '#16A34A',
         'error':             '#ba1a1a',
@@ -182,14 +188,24 @@ module.exports = {
         DEFAULT: '150ms',
       },
 
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(120deg, #004e99 0%, #0a66c2 45%, #6366F1 100%)',
+        'brand-gradient-soft': 'linear-gradient(120deg, #0a66c2 0%, #6366F1 100%)',
+      },
+
       animation: {
         'fade-in':      'fadeIn 0.2s ease-in-out',
         'slide-up':     'slideUp 0.3s ease-out',
         'slide-in-end': 'slideInEnd 0.25s ease-out',
         float:          'float 6s ease-in-out infinite',
+        'glow-pulse':   'glowPulse 5s ease-in-out infinite',
       },
 
       keyframes: {
+        glowPulse: {
+          '0%, 100%': { opacity: '0.5', transform: 'scale(1)' },
+          '50%':       { opacity: '0.8', transform: 'scale(1.08)' },
+        },
         fadeIn: {
           '0%':   { opacity: '0' },
           '100%': { opacity: '1' },

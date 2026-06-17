@@ -10,7 +10,16 @@ export function CtaSection() {
 
   return (
     <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-night-bg">
-      <div className="max-w-content mx-auto bg-cta rounded-[32px] p-10 sm:p-20 relative overflow-hidden reveal">
+      <div className="max-w-content mx-auto bg-brand-gradient rounded-[32px] p-10 sm:p-20 relative overflow-hidden reveal shadow-2xl shadow-accent/20">
+        {/* Dot texture */}
+        <div
+          className="absolute inset-0 opacity-20 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
+            backgroundSize: '28px 28px',
+          }}
+          aria-hidden
+        />
         {/* وصل watermark */}
         <span
           className="absolute -end-[5%] -top-[15%] text-[16rem] sm:text-[20rem] font-extrabold text-white/5 select-none pointer-events-none font-arabic leading-none"
