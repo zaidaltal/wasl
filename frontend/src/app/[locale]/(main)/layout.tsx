@@ -11,9 +11,11 @@ export default async function MainLayout({
   const { locale } = params instanceof Promise ? await params : params;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-[100dvh] flex-col">
       <Header locale={locale} />
-      <main className="flex-1 mt-[60px]">{children}</main>
+      <main id="main" className="flex-1">
+        {children}
+      </main>
       <Footer locale={locale} />
     </div>
   );

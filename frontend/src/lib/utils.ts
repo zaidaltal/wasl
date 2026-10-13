@@ -30,20 +30,21 @@ export function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+// Supported countries, Jordan first. `value` is what the API stores; `code` is ISO 3166-1 alpha-2 (used for flags).
 export const COUNTRIES = [
-  { value: 'Jordan', label_en: 'Jordan', label_ar: 'الأردن' },
-  { value: 'Saudi Arabia', label_en: 'Saudi Arabia', label_ar: 'المملكة العربية السعودية' },
-  { value: 'UAE', label_en: 'UAE', label_ar: 'الإمارات العربية المتحدة' },
-  { value: 'Egypt', label_en: 'Egypt', label_ar: 'مصر' },
-  { value: 'Kuwait', label_en: 'Kuwait', label_ar: 'الكويت' },
-  { value: 'Qatar', label_en: 'Qatar', label_ar: 'قطر' },
-  { value: 'Bahrain', label_en: 'Bahrain', label_ar: 'البحرين' },
-  { value: 'Oman', label_en: 'Oman', label_ar: 'عُمان' },
-  { value: 'Lebanon', label_en: 'Lebanon', label_ar: 'لبنان' },
-  { value: 'Palestine', label_en: 'Palestine', label_ar: 'فلسطين' },
-  { value: 'Iraq', label_en: 'Iraq', label_ar: 'العراق' },
-  { value: 'Syria', label_en: 'Syria', label_ar: 'سوريا' },
-  { value: 'Morocco', label_en: 'Morocco', label_ar: 'المغرب' },
-  { value: 'Tunisia', label_en: 'Tunisia', label_ar: 'تونس' },
-  { value: 'Algeria', label_en: 'Algeria', label_ar: 'الجزائر' },
+  { value: 'Jordan', code: 'JO', label_en: 'Jordan', label_ar: 'الأردن' },
+  { value: 'Saudi Arabia', code: 'SA', label_en: 'Saudi Arabia', label_ar: 'المملكة العربية السعودية' },
+  { value: 'UAE', code: 'AE', label_en: 'UAE', label_ar: 'الإمارات العربية المتحدة' },
+  { value: 'Egypt', code: 'EG', label_en: 'Egypt', label_ar: 'مصر' },
+  { value: 'Kuwait', code: 'KW', label_en: 'Kuwait', label_ar: 'الكويت' },
+  { value: 'Qatar', code: 'QA', label_en: 'Qatar', label_ar: 'قطر' },
+  { value: 'Bahrain', code: 'BH', label_en: 'Bahrain', label_ar: 'البحرين' },
+  { value: 'Oman', code: 'OM', label_en: 'Oman', label_ar: 'عُمان' },
+  { value: 'Lebanon', code: 'LB', label_en: 'Lebanon', label_ar: 'لبنان' },
+  { value: 'Palestine', code: 'PS', label_en: 'Palestine', label_ar: 'فلسطين' },
+  { value: 'Iraq', code: 'IQ', label_en: 'Iraq', label_ar: 'العراق' },
+  { value: 'Syria', code: 'SY', label_en: 'Syria', label_ar: 'سوريا' },
+  { value: 'Morocco', code: 'MA', label_en: 'Morocco', label_ar: 'المغرب' },
+  { value: 'Tunisia', code: 'TN', label_en: 'Tunisia', label_ar: 'تونس' },
+  { value: 'Algeria', code: 'DZ', label_en: 'Algeria', label_ar: 'الجزائر' },
 ];

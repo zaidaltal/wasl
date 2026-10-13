@@ -4,9 +4,16 @@ import { User } from '@/types';
 const TOKEN_KEY = 'wasl_token';
 const USER_KEY = 'wasl_user';
 
+// Secure on HTTPS so the token is never sent over plain HTTP; plain HTTP stays usable for local dev.
+const cookieOptions = () => ({
+  expires: 7,
+  sameSite: 'lax' as const,
+  secure: typeof window !== 'undefined' && window.location.protocol === 'https:',
+});
+
 export const setAuth = (token: string, user: User) => {
-  Cookies.set(TOKEN_KEY, token, { expires: 7, sameSite: 'lax' });
-  Cookies.set(USER_KEY, JSON.stringify(user), { expires: 7, sameSite: 'lax' });
+  Cookies.set(TOKEN_KEY, token, cookieOptions());
+  Cookies.set(USER_KEY, JSON.stringify(user), cookieOptions());
 };
 
 export const clearAuth = () => {

@@ -56,6 +56,9 @@ try {
             => (new CategoryController())->getAll(),
 
         // Freelancers - specific routes first
+        $method === 'GET' && $uri === '/freelancers'
+            => (new FreelancerController())->search(),
+
         $method === 'GET' && $uri === '/freelancers/featured'
             => (new FreelancerController())->getFeatured(),
 

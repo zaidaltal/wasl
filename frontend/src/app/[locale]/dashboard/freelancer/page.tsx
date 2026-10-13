@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Briefcase, Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { freelancersApi } from '@/lib/api';
 import { Application } from '@/types';
-import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Avatar } from '@/components/ui/Avatar';
+import { ButtonArrow, buttonClasses } from '@/components/ui/buttonStyles';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { formatDate } from '@/lib/utils';
+import { Briefcase, CheckCircle, HourglassMedium, User, XCircle } from '@/components/ui/icons';
+import { DashboardHeader, StatTile } from '@/components/dashboard/DashboardHeader';
+import { cn, formatDate } from '@/lib/utils';
 
 export default function FreelancerDashboard() {
   const t = useTranslations('dashboard');
@@ -25,203 +26,165 @@ export default function FreelancerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !user) { router.push(`/${locale}/login`); return; }
-    if (user && user.role !== 'freelancer') { router.push(`/${locale}`); return; }
+    if (!isLoading && !user) {
+      router.push(`/${locale}/login`);
+      return;
+    }
+    if (user && user.role !== 'freelancer') {
+      router.push(`/${locale}`);
+      return;
+    }
     if (user) {
-      freelancersApi.getMyApplications()
+      freelancersApi
+        .getMyApplications()
         .then((r) => setApplications(r.data?.data || []))
         .finally(() => setLoading(false));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isLoading]);
-
-  const stats = {
-    total: applications.length,
-    pending: applications.filter((a) => a.status === 'pending').length,
-    accepted: applications.filter((a) => a.status === 'accepted').length,
-    rejected: applications.filter((a) => a.status === 'rejected').length,
-  };
-
-  const statusVariant = (s: string) => (s === 'accepted' ? 'success' : s === 'rejected' ? 'error' : 'warning');
 
   if (!user) return null;
 
-  const statCards = [
-    { label: t('totalApps'), value: stats.total, icon: <Briefcase size={18} />, chip: 'bg-primary-600/10 text-primary-600' },
-    { label: t('pending'), value: stats.pending, icon: <Clock size={18} />, chip: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' },
-    { label: t('accepted'), value: stats.accepted, icon: <CheckCircle size={18} />, chip: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400' },
-    { label: t('rejected'), value: stats.rejected, icon: <XCircle size={18} />, chip: 'bg-error-container text-on-error-container dark:bg-red-900/30 dark:text-red-400' },
+  const count = (s: string) => applications.filter((a) => a.status === s).length;
+  const stats = [
+    { label: t('totalApps'), value: applications.length, icon: <Briefcase size={18} /> },
+    { label: t('pending'), value: count('pending'), icon: <HourglassMedium size={18} /> },
+    { label: t('accepted'), value: count('accepted'), icon: <CheckCircle size={18} /> },
+    { label: t('rejected'), value: count('rejected'), icon: <XCircle size={18} /> },
   ];
 
-  const statusPill = (s: string) =>
-    s === 'accepted'
-      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-      : s === 'rejected'
-        ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+  const statusVariant = (s: string) => (s === 'accepted' ? 'success' : s === 'rejected' ? 'error' : 'warning');
 
-  // Profile completion checklist — derived from data already on the user object
   const checklist = [
     { label: t('editProfile'), done: true },
-    { label: 'Avatar', done: !!user.avatar },
-    { label: t('country'), done: !!(user as any).country },
-    { label: t('myApplications'), done: applications.length > 0 },
+    { label: t('avatar'), done: !!user.avatar },
+    { label: t('country'), done: !!user.country },
+    { label: t('firstApplication'), done: applications.length > 0 },
   ];
   const completion = Math.round((checklist.filter((c) => c.done).length / checklist.length) * 100);
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Avatar src={user.avatar} name={user.name} size="lg" />
-          <div>
-            <h1 className="text-2xl font-bold text-ink dark:text-white">{t('hello', { name: user.name })}</h1>
-            <p className="text-text-muted dark:text-gray-400 text-sm capitalize">{user.role}</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => router.push(`/${locale}/profile`)} className="gap-1.5">
-            <User size={15} /> {t('editProfile')}
-          </Button>
-          <Button size="sm" onClick={() => router.push(`/${locale}/jobs`)} className="gap-1.5">
-            <Briefcase size={15} /> {t('browseJobs')}
-          </Button>
-        </div>
-      </div>
+      <DashboardHeader
+        name={user.name}
+        avatar={user.avatar}
+        title={t('hello', { name: user.name })}
+        subtitle={t('overview')}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => router.push(`/${locale}/profile`)}>
+              <User size={16} aria-hidden />
+              {t('editProfile')}
+            </Button>
+            <Button arrow onClick={() => router.push(`/${locale}/jobs`)} className="pe-3">
+              {t('browseJobs')}
+            </Button>
+          </>
+        }
+      />
 
-      {/* Stats — icon chip + big number */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white dark:bg-night-card rounded-xl p-5 sm:p-6 shadow-card border border-outline-variant/50 dark:border-night-border hover:shadow-card-hover transition-shadow"
-          >
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${stat.chip}`}>
-              {stat.icon}
-            </div>
-            <p className="text-xs font-medium text-text-muted">{stat.label}</p>
-            <h3 className="text-3xl font-bold text-ink dark:text-white mt-1">{stat.value}</h3>
-          </div>
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {stats.map((s, i) => (
+          <StatTile key={s.label} {...s} emphasis={i === 0} delay={i + 1} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Main column — applications table + promo banner */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-night-card rounded-xl shadow-card border border-outline-variant/50 dark:border-night-border overflow-hidden">
-            <div className="px-6 py-5 border-b border-line dark:border-night-border flex items-center justify-between">
-              <h2 className="text-lg font-bold text-ink dark:text-white">{t('myApplications')}</h2>
-            </div>
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[1fr_320px]">
+        <section className="shell animate-fade-up [animation-delay:280ms]">
+          <div className="core overflow-hidden">
+            <h2 className="px-6 pb-4 pt-6 text-lg font-semibold tracking-tight text-ink">{t('myApplications')}</h2>
             {loading ? (
-              <div className="p-6 space-y-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-12" />)}
+              <div className="space-y-3 px-6 pb-6">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-16" />
+                ))}
               </div>
             ) : applications.length === 0 ? (
-              <div className="text-center py-16">
-                <Briefcase size={40} className="mx-auto text-muted mb-3" />
-                <p className="text-text-muted dark:text-gray-400">{t('noApplications')}</p>
-                <Button size="sm" className="mt-4" onClick={() => router.push(`/${locale}/jobs`)}>
-                  {t('browseJobs')}
-                </Button>
+              <div className="px-6 pb-6">
+                <EmptyState
+                  icon={Briefcase}
+                  title={t('noApplications')}
+                  action={
+                    <Link href={`/${locale}/jobs`} className={buttonClasses({ size: 'sm' })}>
+                      {t('browseJobs')}
+                    </Link>
+                  }
+                />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-surface-container-low dark:bg-night-bg/50 border-b border-line dark:border-night-border">
-                    <tr>
-                      <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-start">{t('jobCompany')}</th>
-                      <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-start hidden sm:table-cell">{t('date')}</th>
-                      <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-end">{t('status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line dark:divide-night-border">
-                    {applications.map((app) => (
-                      <tr key={app.id} className="hover:bg-surface-container/60 dark:hover:bg-night-border/30 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary-600/10 text-primary-600 flex items-center justify-center shrink-0">
-                              <Briefcase size={18} />
-                            </div>
-                            <Link
-                              href={`/${locale}/jobs/${app.job_id}`}
-                              className="font-bold text-ink dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm transition-colors truncate block max-w-[220px] sm:max-w-xs"
-                            >
-                              {app.job?.title || `Job #${app.job_id}`}
-                            </Link>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-text-muted hidden sm:table-cell">
-                          {formatDate(app.applied_at, locale)}
-                        </td>
-                        <td className="px-6 py-4 text-end">
-                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusPill(app.status)}`}>
-                            {t(app.status)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ul className="divide-y divide-line border-t border-line">
+                {applications.map((app) => (
+                  <li key={app.id} className="flex items-center gap-4 px-6 py-4 transition-colors duration-200 hover:bg-sunken/50">
+                    <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sunken text-ink-soft sm:flex">
+                      <Briefcase size={18} aria-hidden />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/${locale}/jobs/${app.job_id}`}
+                        className="block truncate font-semibold text-ink transition-colors hover:text-accent"
+                      >
+                        {app.job?.title || `#${app.job_id}`}
+                      </Link>
+                      <p className="mt-0.5 text-xs text-muted">{formatDate(app.applied_at, locale)}</p>
+                    </div>
+                    <Badge variant={statusVariant(app.status)}>{t(app.status)}</Badge>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
+        </section>
 
-          {/* Promo banner — dark navy with watermark icon */}
-          <div className="bg-ink dark:bg-night-card rounded-2xl p-8 relative overflow-hidden text-white">
-            <div className="relative z-10 max-w-md">
-              <h3 className="text-xl font-bold mb-2">{t('findNextJob')}</h3>
-              <p className="text-white/80 text-sm mb-5 leading-relaxed">{t('findNextJobDesc')}</p>
-              <button
-                onClick={() => router.push(`/${locale}/jobs`)}
-                className="bg-primary-600 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:brightness-110 active:scale-95 transition-all"
-              >
-                {t('explorJobs')}
-              </button>
-            </div>
-            <Briefcase
-              size={200}
-              className="absolute -end-10 -bottom-10 text-white/5 pointer-events-none"
-              strokeWidth={1}
-            />
-          </div>
-        </div>
-
-        {/* Sidebar — profile completion */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-night-card rounded-xl p-6 shadow-card border border-outline-variant/50 dark:border-night-border">
-            <h3 className="text-sm font-bold text-ink dark:text-white mb-4">{t('profileCompletion')}</h3>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl font-bold text-primary-600">{completion}%</span>
-              <span className="text-xs text-text-muted">{t('almostThere')}</span>
-            </div>
-            <div className="w-full bg-surface-container-high dark:bg-night-border h-2.5 rounded-full mb-6 overflow-hidden">
+        <aside className="space-y-4">
+          <div className="shell animate-fade-up [animation-delay:340ms]">
+            <div className="core p-6">
+              <div className="flex items-baseline justify-between">
+                <h3 className="text-sm font-semibold text-ink">{t('profileCompletion')}</h3>
+                <span className="num text-2xl font-semibold text-accent">{completion}%</span>
+              </div>
               <div
-                className="bg-primary-600 h-full rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${completion}%` }}
-              />
+                className="mt-4 h-1.5 overflow-hidden rounded-full bg-sunken"
+                role="progressbar"
+                aria-valuenow={completion}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t('profileCompletion')}
+              >
+                <div
+                  className="h-full origin-left rounded-full bg-accent transition-transform duration-1000 ease-out rtl:origin-right"
+                  style={{ transform: `scaleX(${completion / 100})` }}
+                />
+              </div>
+              <ul className="mt-6 space-y-3">
+                {checklist.map((item) => (
+                  <li key={item.label} className="flex items-center gap-3 text-sm">
+                    {item.done ? (
+                      <CheckCircle size={20} weight="fill" className="shrink-0 text-accent" aria-hidden />
+                    ) : (
+                      <span className="h-5 w-5 shrink-0 rounded-full border-2 border-line" aria-hidden />
+                    )}
+                    <span className={cn(item.done ? 'text-ink' : 'text-muted')}>{item.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={`/${locale}/profile`}
+                className={buttonClasses({ variant: 'secondary', fullWidth: true, className: 'mt-6' })}
+              >
+                {t('updateProfile')}
+              </Link>
             </div>
-            <ul className="space-y-3">
-              {checklist.map((item, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  {item.done ? (
-                    <CheckCircle size={18} className="text-success-600 shrink-0" />
-                  ) : (
-                    <span className="w-[18px] h-[18px] rounded-full border-2 border-outline-variant shrink-0" />
-                  )}
-                  <span className={`text-sm ${item.done ? 'text-ink dark:text-white' : 'text-text-muted'}`}>
-                    {item.label}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => router.push(`/${locale}/profile`)}
-              className="w-full mt-6 py-2.5 border border-primary-600 text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-600/10 transition-all"
-            >
-              {t('updateProfile')}
-            </button>
           </div>
-        </div>
+
+          <div className="animate-fade-up rounded-shell bg-accent-soft p-6 [animation-delay:400ms]">
+            <h3 className="text-lg font-semibold tracking-tight text-ink">{t('findNextJob')}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">{t('findNextJobDesc')}</p>
+            <Link href={`/${locale}/jobs`} className={buttonClasses({ variant: 'ink', size: 'sm', className: 'mt-5 pe-2' })}>
+              {t('explorJobs')}
+              <ButtonArrow />
+            </Link>
+          </div>
+        </aside>
       </div>
     </div>
   );

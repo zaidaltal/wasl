@@ -10,9 +10,9 @@ export default async function AdminLayout({
   const { locale } = params instanceof Promise ? await params : params;
 
   return (
-    <div className="min-h-screen bg-ivory dark:bg-night-bg">
+    <div className="min-h-[100dvh]">
       <Header locale={locale} />
-      <main>{children}</main>
+      <main id="main">{children}</main>
     </div>
   );
 }

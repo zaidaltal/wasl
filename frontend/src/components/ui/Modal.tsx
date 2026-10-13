@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X } from './icons';
 import { cn } from '@/lib/utils';
 
 interface ModalProps {
@@ -57,28 +57,29 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
   const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-ink/60 backdrop-blur-sm" onClick={onClose} />
-      <div
-        ref={panelRef}
-        className={cn(
-          'relative bg-white dark:bg-night-card rounded-card border border-line dark:border-night-border shadow-card-hover w-full max-h-[90vh] overflow-y-auto',
-          sizes[size]
-        )}
-      >
-        {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-line dark:border-night-border">
-            <h3 className="text-lg font-semibold text-ink dark:text-white">{title}</h3>
-            <button
-              onClick={onClose}
-              aria-label="Close"
-              className="text-muted hover:text-ink dark:hover:text-white transition-colors duration-150 rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600/30"
-            >
-              <X size={20} />
-            </button>
-          </div>
-        )}
-        <div className="p-6">{children}</div>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="absolute inset-0 animate-fade-in bg-night/50 backdrop-blur-md" onClick={onClose} />
+      <div ref={panelRef} className={cn('shell relative w-full animate-sheet-in bg-surface/40 backdrop-blur-xl', sizes[size])}>
+        <div className="core max-h-[88dvh] overflow-y-auto overscroll-contain">
+          {title && (
+            <div className="flex items-center justify-between gap-4 px-6 pt-6 sm:px-7 sm:pt-7">
+              <h2 className="text-lg font-semibold tracking-tight text-ink">{title}</h2>
+              <button
+                onClick={onClose}
+                aria-label="Close"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-sunken text-ink-soft transition-colors duration-300 hover:bg-line hover:text-ink"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            </div>
+          )}
+          <div className="p-6 sm:p-7">{children}</div>
+        </div>
       </div>
     </div>
   );

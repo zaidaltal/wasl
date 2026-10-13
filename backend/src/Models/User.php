@@ -31,9 +31,9 @@ class User
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)'
+            'INSERT INTO users (name, email, password, role, country) VALUES (?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$data['name'], $data['email'], $data['password'], $data['role']]);
+        $stmt->execute([$data['name'], $data['email'], $data['password'], $data['role'], $data['country'] ?? null]);
         return (int)$this->db->lastInsertId();
     }
 

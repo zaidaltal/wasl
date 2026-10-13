@@ -1,98 +1,79 @@
 import Link from 'next/link';
-import { MapPin, Briefcase, Clock, Users } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Job } from '@/types';
 import { Badge } from '@/components/ui/Badge';
-import { formatDate, formatCurrency } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { ArrowUpRight, Clock, MapPin, Users } from '@/components/ui/icons';
+import { cn, formatCurrency, formatDate } from '@/lib/utils';
 
 interface JobCardProps {
   job: Job;
   className?: string;
+  /** Heading level for the title: 2 on listing pages, 3 under a section heading */
+  headingLevel?: 2 | 3;
 }
 
-export function JobCard({ job, className }: JobCardProps) {
+export function JobCard({ job, className, headingLevel = 3 }: JobCardProps) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const t = useTranslations('jobs');
   const locale = useLocale();
   const categoryName = locale === 'ar' ? job.category?.name_ar : job.category?.name_en;
   const clientName = job.client?.client_profile?.company_name || job.client?.name || '';
+  const budget = Number(job.budget);
 
   return (
     <article
       className={cn(
-        'group cursor-pointer bg-white dark:bg-night-card p-6 rounded-xl border border-outline-variant/60 dark:border-night-border shadow-sm',
-        'hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 relative overflow-hidden',
+        'group relative rounded-shell bg-surface p-6 ring-1 ring-inset ring-line sm:p-7',
+        'transition-[transform,box-shadow] duration-500 ease-fluid hover:-translate-y-0.5 hover:shadow-lift hover:ring-ink/15',
+        'has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-accent',
         className
       )}
     >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
-        <div className="flex-1 min-w-0">
-          {/* Title + company chip */}
-          <div className="flex flex-wrap items-center gap-2.5 mb-2">
-            <h2 className="font-bold text-lg text-ink dark:text-white leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
-              <Link href={`/${locale}/jobs/${job.id}`} className="focus:outline-none">
-                <span className="absolute inset-0" aria-hidden />
-                {job.title}
-              </Link>
-            </h2>
-            {clientName && (
-              <span className="bg-secondary-container text-on-secondary-fixed-variant px-3 py-0.5 rounded-full text-xs font-medium">
-                {clientName}
-                {job.country ? ` • ${job.country}` : ''}
-              </span>
-            )}
-            {job.status !== 'open' && (
-              <Badge variant="neutral" className="shrink-0">{t(job.status)}</Badge>
-            )}
-          </div>
-
-          {/* Description */}
-          <p className="text-text-muted dark:text-gray-400 text-sm line-clamp-2 mb-4 max-w-2xl leading-relaxed">
-            {job.description}
-          </p>
-
-          {/* Tag chips */}
-          <div className="flex flex-wrap gap-2 mb-4 empty:hidden">
-            {categoryName && (
-              <span className="inline-flex items-center gap-1 bg-surface-container dark:bg-night-border text-text-secondary dark:text-gray-300 px-3 py-1 rounded-full text-xs">
-                <Briefcase size={11} />
-                {categoryName}
-              </span>
-            )}
+      <div className="flex items-start justify-between gap-5">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+            {clientName && <span className="font-semibold text-ink-soft">{clientName}</span>}
             {job.country && (
-              <span className="inline-flex items-center gap-1 bg-surface-container dark:bg-night-border text-text-secondary dark:text-gray-300 px-3 py-1 rounded-full text-xs">
-                <MapPin size={11} />
+              <span className="inline-flex items-center gap-1">
+                <MapPin size={13} aria-hidden />
                 {job.country}
               </span>
             )}
+            {job.status !== 'open' && <Badge variant="neutral">{t(job.status)}</Badge>}
           </div>
 
-          {/* Budget + meta */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-            {job.budget && (
-              <span className="text-success-700 dark:text-success-400 font-bold text-base">
-                {formatCurrency(job.budget, locale)}
-              </span>
+          <Heading className="text-lg font-semibold leading-snug tracking-tight text-ink transition-colors duration-300 group-hover:text-accent sm:text-xl">
+            <Link href={`/${locale}/jobs/${job.id}`} className="focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0">
+              <span className="absolute inset-0 rounded-shell" aria-hidden />
+              {job.title}
+            </Link>
+          </Heading>
+
+          <p className="mt-2.5 line-clamp-2 max-w-[68ch] text-[15px] leading-relaxed text-ink-soft">{job.description}</p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2.5">
+            {budget > 0 && (
+              <span className="num text-base font-semibold text-ink">{formatCurrency(budget, locale)}</span>
             )}
+            {categoryName && <Badge variant="neutral">{categoryName}</Badge>}
             {job.applications_count !== undefined && (
-              <span className="flex items-center gap-1 text-xs text-text-muted">
-                <Users size={12} />
+              <span className="inline-flex items-center gap-1.5 text-[13px] text-muted">
+                <Users size={14} aria-hidden />
                 {t('applicants', { count: job.applications_count })}
               </span>
             )}
-            <span className="flex items-center gap-1 text-xs text-text-muted">
-              <Clock size={12} />
+            <span className="inline-flex items-center gap-1.5 text-[13px] text-muted">
+              <Clock size={14} aria-hidden />
               {formatDate(job.created_at, locale)}
             </span>
           </div>
         </div>
 
-        {/* View Job CTA */}
         <span
-          className="relative z-10 bg-primary-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all group-hover:brightness-110 group-active:scale-95 shrink-0 self-end md:self-center pointer-events-none"
           aria-hidden
+          className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sunken text-ink transition-[background-color,color,transform] duration-500 ease-fluid group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:bg-accent group-hover:text-accent-on rtl:group-hover:-translate-x-0.5 sm:flex"
         >
-          {t('viewJob')}
+          <ArrowUpRight size={17} weight="bold" className="rtl:-scale-x-100" />
         </span>
       </div>
     </article>

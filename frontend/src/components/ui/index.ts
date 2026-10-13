@@ -1,4 +1,5 @@
 export { Button } from './Button';
+export { ButtonArrow, buttonClasses } from './buttonStyles';
 export type { ButtonProps } from './Button';
 export { Input, Textarea, Select } from './Input';
 export { Badge } from './Badge';

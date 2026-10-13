@@ -17,11 +17,19 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = String(error.config?.url || '').startsWith('/auth/');
+    const hadSession = !!error.config?.headers?.Authorization;
+    if (error.response?.status === 401 && hadSession && !isAuthEndpoint) {
       Cookies.remove('wasl_token');
       Cookies.remove('wasl_user');
       if (typeof window !== 'undefined') {
-        window.location.href = '/en/login';
+        // Stay in the user's language and come back to this page after signing in again
+        const { pathname, search } = window.location;
+        const locale = pathname.split('/')[1] === 'ar' ? 'ar' : 'en';
+        if (!pathname.startsWith(`/${locale}/login`)) {
+          const next = encodeURIComponent(pathname + search);
+          window.location.href = `/${locale}/login?next=${next}&expired=1`;
+        }
       }
     }
     return Promise.reject(error);
@@ -29,7 +37,7 @@ api.interceptors.response.use(
 );
 
 export const authApi = {
-  register: (data: { name: string; email: string; password: string; role: string }) =>
+  register: (data: { name: string; email: string; password: string; role: string; country?: string }) =>
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
@@ -49,6 +57,7 @@ export const freelancersApi = {
   updateProfile: (id: number, data: object) => api.put(`/freelancers/${id}`, data),
   getMyApplications: () => api.get('/freelancers/me/applications'),
   getFeatured: () => api.get('/freelancers/featured'),
+  search: (params: { search?: string; country?: string }) => api.get('/freelancers', { params }),
 };
 
 export const clientsApi = {

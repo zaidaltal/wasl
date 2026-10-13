@@ -21,9 +21,10 @@ class App
         }
     }
 
-    public static function error(string $message, int $code = 400): void
+    /** $extra adds machine-readable fields (e.g. 'code', 'retry_after') so clients can localize the message. */
+    public static function error(string $message, int $code = 400, array $extra = []): void
     {
-        self::json(['error' => $message], $code);
+        self::json(array_merge(['error' => $message], $extra), $code);
     }
 
     public static function paginate(array $items, int $total, int $page = 1, int $perPage = 20): array
