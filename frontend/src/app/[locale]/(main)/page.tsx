@@ -47,10 +47,7 @@ export default async function LandingPage({ params: { locale } }: { params: { lo
 
   return (
     <>
-      <HeroSection
-        job={recentJobs.find((j: any) => Number(j.budget) > 0) || recentJobs[0]}
-        freelancer={featuredFreelancers.find((f: any) => (f.freelancer_profile?.skills?.length || 0) > 0)}
-      />
+      <HeroSection />
       <CountriesMarquee />
       <MeaningSection />
       <CategoriesSection categories={categories} />

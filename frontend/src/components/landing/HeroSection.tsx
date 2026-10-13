@@ -8,56 +8,46 @@ import { ButtonArrow } from '@/components/ui/buttonStyles';
 import { Avatar } from '@/components/ui/Avatar';
 import { ArrowRight, Briefcase, MagnifyingGlass, MapPin } from '@/components/ui/icons';
 import { cn, formatCurrency } from '@/lib/utils';
+import { HERO_MATCHES, type HeroMatch } from '@/content/heroMatches';
 
-interface HeroProps {
-  /** A real open job and a real freelancer from the API, shown "connected" in the hero visual */
-  job?: any;
-  freelancer?: any;
-}
+type Loc = 'en' | 'ar';
 
-function FreelancerMini({ f, locale, rateSuffix }: { f: any; locale: string; rateSuffix: string }) {
-  const rate = Number(f.freelancer_profile?.hourly_rate) || 0;
-  const skills: string[] = f.freelancer_profile?.skills?.slice(0, 3) || [];
+// Built-in example pair (see content/heroMatches.ts), so the hero works without the API
+const MATCH: HeroMatch = HERO_MATCHES[0];
+
+function FreelancerMini({ l, locale, rateSuffix }: { l: Loc; locale: string; rateSuffix: string }) {
+  const f = MATCH.freelancer;
   return (
     <div className="shell bg-surface/50 shadow-lift backdrop-blur-sm">
       <div className="core p-5">
         <div className="flex items-center gap-3">
-          <Avatar src={f.avatar} name={f.name} size="md" />
+          <Avatar name={f.name.en} size="md" />
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold text-ink">{f.name}</p>
-            {f.country && (
-              <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
-                <MapPin size={12} aria-hidden />
-                {f.city ? `${f.city}, ` : ''}
-                {f.country}
-              </p>
-            )}
-          </div>
-          {rate > 0 && (
-            <p className="num ms-auto shrink-0 text-sm font-semibold text-ink">
-              {formatCurrency(rate, locale)}
-              <span className="text-xs font-medium text-muted">{rateSuffix}</span>
+            <p className="truncate text-[15px] font-semibold text-ink">{f.name[l]}</p>
+            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+              <MapPin size={12} aria-hidden />
+              {f.city[l]}, {f.country[l]}
             </p>
-          )}
-        </div>
-        {skills.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {skills.map((s) => (
-              <span key={s} className="rounded-full bg-sunken px-2.5 py-1 text-[11px] font-medium text-ink-soft">
-                {s}
-              </span>
-            ))}
           </div>
-        )}
+          <p className="num ms-auto shrink-0 text-sm font-semibold text-ink">
+            {formatCurrency(f.rate, locale)}
+            <span className="text-xs font-medium text-muted">{rateSuffix}</span>
+          </p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {f.skills.map((s) => (
+            <span key={s} className="rounded-full bg-sunken px-2.5 py-1 text-[11px] font-medium text-ink-soft">
+              {s}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-function JobMini({ job, locale }: { job: any; locale: string }) {
-  const budget = Number(job.budget) || 0;
-  const company = job.client?.client_profile?.company_name || job.company_name || job.client?.name;
-  const category = locale === 'ar' ? job.category?.name_ar : job.category?.name_en;
+function JobMini({ l, locale }: { l: Loc; locale: string }) {
+  const job = MATCH.job;
   return (
     <div className="shell bg-surface/50 shadow-lift backdrop-blur-sm">
       <div className="core p-5">
@@ -65,13 +55,13 @@ function JobMini({ job, locale }: { job: any; locale: string }) {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-soft text-accent-strong">
             <Briefcase size={14} aria-hidden />
           </span>
-          <span className="truncate font-semibold text-ink-soft">{company}</span>
-          {job.country && <span className="truncate">{job.country}</span>}
+          <span className="truncate font-semibold text-ink-soft">{job.company[l]}</span>
+          <span className="truncate">{job.country[l]}</span>
         </div>
-        <p className="mt-3 line-clamp-2 text-[15px] font-semibold leading-snug text-ink">{job.title}</p>
+        <p className="mt-3 line-clamp-2 text-[15px] font-semibold leading-snug text-ink">{job.title[l]}</p>
         <div className="mt-4 flex items-center gap-2">
-          {budget > 0 && <span className="num text-sm font-semibold text-ink">{formatCurrency(budget, locale)}</span>}
-          {category && <span className="truncate rounded-full bg-sunken px-2.5 py-1 text-[11px] font-medium text-ink-soft">{category}</span>}
+          <span className="num text-sm font-semibold text-ink">{formatCurrency(job.budget, locale)}</span>
+          <span className="truncate rounded-full bg-sunken px-2.5 py-1 text-[11px] font-medium text-ink-soft">{job.category[l]}</span>
         </div>
       </div>
     </div>
@@ -94,7 +84,7 @@ function WaslNode({ className }: { className?: string }) {
   );
 }
 
-export function HeroSection({ job, freelancer }: HeroProps) {
+export function HeroSection() {
   const t = useTranslations('landing.hero');
   const tCta = useTranslations('landing.cta');
   const tF = useTranslations('freelancers');
@@ -108,7 +98,7 @@ export function HeroSection({ job, freelancer }: HeroProps) {
     router.push(q ? `/${locale}/jobs?search=${encodeURIComponent(q)}` : `/${locale}/jobs`);
   };
 
-  const hasPair = !!(job && freelancer);
+  const l: Loc = locale === 'ar' ? 'ar' : 'en';
 
   return (
     <section className="relative overflow-hidden pb-16 pt-28 sm:pt-32 lg:pb-24">
@@ -178,76 +168,68 @@ export function HeroSection({ job, freelancer }: HeroProps) {
           </p>
         </div>
 
-        {/* Signature visual: a real freelancer and a real open job, joined by the wasl node */}
+        {/* Signature visual: an example freelancer and job, joined by the wasl node */}
         <figure className="relative mx-auto w-full max-w-[520px] lg:max-w-none">
           <figcaption className="sr-only">{t('figure')}</figcaption>
 
-          {hasPair ? (
-            <>
-              {/* sm and up: diagonal composition with a drawn connector */}
-              <div className="relative hidden aspect-[1/1] sm:block lg:aspect-[5/6]">
-                <svg
-                  aria-hidden
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                  className="absolute inset-0 h-full w-full overflow-visible rtl:-scale-x-100"
-                >
-                  <path
-                    id="wasl-path"
-                    d="M 34 18 C 34 55, 66 45, 66 82"
-                    pathLength={1}
-                    fill="none"
-                    stroke="rgb(var(--accent))"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeDasharray="0.012 0.018"
-                    vectorEffect="non-scaling-stroke"
-                    className="opacity-30"
-                  />
-                  <path
-                    d="M 34 18 C 34 55, 66 45, 66 82"
-                    pathLength={1}
-                    fill="none"
-                    stroke="rgb(var(--accent))"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    vectorEffect="non-scaling-stroke"
-                    className="draw-line"
-                  />
-                  <circle r="1.1" fill="rgb(var(--accent))" className="motion-reduce:hidden">
-                    <animateMotion dur="3.2s" begin="2.2s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
-                      <mpath href="#wasl-path" />
-                    </animateMotion>
-                  </circle>
-                </svg>
+          {/* sm and up: diagonal composition with a drawn connector */}
+          <div className="relative hidden aspect-[1/1] sm:block lg:aspect-[5/6]">
+            <svg
+              aria-hidden
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              className="absolute inset-0 h-full w-full overflow-visible rtl:-scale-x-100"
+            >
+              <path
+                id="wasl-path"
+                d="M 34 18 C 34 55, 66 45, 66 82"
+                pathLength={1}
+                fill="none"
+                stroke="rgb(var(--accent))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray="0.012 0.018"
+                vectorEffect="non-scaling-stroke"
+                className="opacity-30"
+              />
+              <path
+                d="M 34 18 C 34 55, 66 45, 66 82"
+                pathLength={1}
+                fill="none"
+                stroke="rgb(var(--accent))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                className="draw-line"
+              />
+              <circle r="1.1" fill="rgb(var(--accent))" className="motion-reduce:hidden">
+                <animateMotion dur="3.2s" begin="2.2s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
+                  <mpath href="#wasl-path" />
+                </animateMotion>
+              </circle>
+            </svg>
 
-                <div className="absolute start-0 top-[4%] w-[68%] animate-fade-up [animation-delay:200ms] lg:-rotate-2 rtl:lg:rotate-2">
-                  <FreelancerMini f={freelancer} locale={locale} rateSuffix={tF('perHour')} />
-                </div>
-                <div className="absolute bottom-[4%] end-0 w-[72%] animate-fade-up [animation-delay:400ms] lg:rotate-2 rtl:lg:-rotate-2">
-                  <JobMini job={job} locale={locale} />
-                </div>
-                <WaslNode className="left-1/2 top-1/2" />
-              </div>
-
-              {/* Mobile: vertical stack joined by a straight connector */}
-              <div className="flex flex-col items-stretch sm:hidden">
-                <div className="animate-fade-up [animation-delay:200ms]">
-                  <FreelancerMini f={freelancer} locale={locale} rateSuffix={tF('perHour')} />
-                </div>
-                <div className="relative mx-auto h-28 w-px bg-gradient-to-b from-accent/20 via-accent to-accent/20">
-                  <WaslNode className="left-1/2 top-1/2 h-16 w-16" />
-                </div>
-                <div className="animate-fade-up [animation-delay:400ms]">
-                  <JobMini job={job} locale={locale} />
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="relative mx-auto aspect-square max-w-sm">
-              <WaslNode className="left-1/2 top-1/2 h-40 w-40 [&>span]:text-6xl" />
+            <div className="absolute start-0 top-[4%] w-[68%] animate-fade-up [animation-delay:200ms] lg:-rotate-2 rtl:lg:rotate-2">
+              <FreelancerMini l={l} locale={locale} rateSuffix={tF('perHour')} />
             </div>
-          )}
+            <div className="absolute bottom-[4%] end-0 w-[72%] animate-fade-up [animation-delay:400ms] lg:rotate-2 rtl:lg:-rotate-2">
+              <JobMini l={l} locale={locale} />
+            </div>
+            <WaslNode className="left-1/2 top-1/2" />
+          </div>
+
+          {/* Mobile: vertical stack joined by a straight connector */}
+          <div className="flex flex-col items-stretch sm:hidden">
+            <div className="animate-fade-up [animation-delay:200ms]">
+              <FreelancerMini l={l} locale={locale} rateSuffix={tF('perHour')} />
+            </div>
+            <div className="relative mx-auto h-28 w-px bg-gradient-to-b from-accent/20 via-accent to-accent/20">
+              <WaslNode className="left-1/2 top-1/2 h-16 w-16" />
+            </div>
+            <div className="animate-fade-up [animation-delay:400ms]">
+              <JobMini l={l} locale={locale} />
+            </div>
+          </div>
         </figure>
       </div>
     </section>
