@@ -60,10 +60,52 @@ class FreelancerProfile
         return $stmt->execute($values);
     }
 
+    /**
+     * Searches all freelancers by name, bio, or skill, optionally filtered by country.
+     * Email is intentionally not selected: this endpoint is public.
+     */
+    public function search(string $search, ?string $country, int $limit = 60): array
+    {
+        $sql = 'SELECT u.id, u.name, u.avatar, u.country, u.city,
+                       fp.bio, fp.skills, fp.portfolio_links, fp.hourly_rate
+                FROM freelancer_profiles fp
+                JOIN users u ON u.id = fp.user_id
+                WHERE u.role = "freelancer"';
+        $params = [];
+
+        if ($search !== '') {
+            $sql .= ' AND (u.name LIKE ? OR fp.bio LIKE ? OR fp.skills LIKE ?)';
+            $like = '%' . $search . '%';
+            array_push($params, $like, $like, $like);
+        }
+        if ($country) {
+            $sql .= ' AND u.country = ?';
+            $params[] = $country;
+        }
+
+        // Complete profiles first, then newest
+        $sql .= ' ORDER BY (fp.bio IS NOT NULL AND fp.bio <> "") DESC, u.created_at DESC LIMIT ' . max(1, min($limit, 100));
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+        foreach ($rows as &$row) {
+            $row['skills']          = $row['skills'] ? json_decode($row['skills'], true) : [];
+            $row['portfolio_links'] = $row['portfolio_links'] ? json_decode($row['portfolio_links'], true) : [];
+            $row['freelancer_profile'] = [
+                'bio'             => $row['bio'],
+                'skills'          => $row['skills'],
+                'portfolio_links' => $row['portfolio_links'],
+                'hourly_rate'     => $row['hourly_rate'],
+            ];
+        }
+        return $rows;
+    }
+
     public function getFeatured(int $limit = 20): array
     {
         $stmt = $this->db->prepare(
-            'SELECT u.id, u.name, u.email, u.avatar, u.country, u.city,
+            'SELECT u.id, u.name, u.avatar, u.country, u.city,
                     fp.bio, fp.skills, fp.portfolio_links, fp.hourly_rate
              FROM freelancer_profiles fp
              JOIN users u ON u.id = fp.user_id

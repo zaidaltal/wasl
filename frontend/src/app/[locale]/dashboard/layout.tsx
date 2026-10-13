@@ -11,11 +11,13 @@ export default async function DashboardLayout({
   const { locale } = params instanceof Promise ? await params : params;
 
   return (
-    <div className="min-h-screen bg-ivory dark:bg-night-bg">
+    <div className="min-h-[100dvh]">
       <Header locale={locale} />
-      <div className="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8 items-start pb-24 md:pb-8">
+      <div className="container-page flex items-start gap-8 pb-28 pt-28 sm:pt-32 md:pb-16">
         <DashboardSidebar locale={locale} />
-        <main className="flex-1 min-w-0">{children}</main>
+        <main id="main" className="min-w-0 flex-1">
+          {children}
+        </main>
       </div>
     </div>
   );

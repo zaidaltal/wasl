@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, Briefcase, User, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Briefcase, SquaresFour, User, UsersThree } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 interface DashboardSidebarProps {
@@ -16,44 +16,45 @@ export function DashboardSidebar({ locale }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const dashboardPath =
-    user?.role === 'client' ? `/${locale}/dashboard/client` : `/${locale}/dashboard/freelancer`;
+  const dashboardPath = user?.role === 'client' ? `/${locale}/dashboard/client` : `/${locale}/dashboard/freelancer`;
 
   const items = [
-    { href: dashboardPath, label: t('dashboard'), icon: LayoutDashboard },
+    { href: dashboardPath, label: t('dashboard'), icon: SquaresFour },
     { href: `/${locale}/jobs`, label: t('jobs'), icon: Briefcase },
-    { href: `/${locale}/freelancers`, label: t('freelancers'), icon: Users },
+    { href: `/${locale}/freelancers`, label: t('freelancers'), icon: UsersThree },
     { href: `/${locale}/profile`, label: t('profile'), icon: User },
   ];
 
-  const linkCls = (active: boolean) =>
-    cn(
-      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
-      active
-        ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300'
-        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-night-card'
-    );
-
   return (
     <>
-      {/* Desktop sidebar — 240px */}
-      <aside className="hidden md:block w-60 flex-shrink-0">
-        <nav
-          className="sticky top-24 bg-white dark:bg-night-card rounded-card border border-line dark:border-night-border shadow-card p-3 space-y-1"
-          aria-label="Dashboard"
-        >
-          {items.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={linkCls(pathname === href)}>
-              <Icon size={17} />
-              {label}
-            </Link>
-          ))}
+      {/* Desktop: sticky rail with labels */}
+      <aside className="hidden w-60 shrink-0 md:block">
+        <nav className="shell sticky top-28" aria-label="Dashboard">
+          <div className="core space-y-1 p-2">
+            {items.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-colors duration-300 ease-fluid',
+                    active ? 'bg-ink text-canvas' : 'text-ink-soft hover:bg-sunken hover:text-ink'
+                  )}
+                >
+                  <Icon size={19} weight={active ? 'fill' : 'regular'} />
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
       </aside>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile: floating bottom pill bar */}
       <nav
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-night-bg border-t border-line dark:border-night-border flex"
+        className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 flex rounded-full bg-surface/85 p-1.5 shadow-lift ring-1 ring-ink/[0.07] backdrop-blur-xl md:hidden"
         aria-label="Dashboard"
       >
         {items.map(({ href, label, icon: Icon }) => {
@@ -62,13 +63,14 @@ export function DashboardSidebar({ locale }: DashboardSidebarProps) {
             <Link
               key={href}
               href={href}
+              aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex-1 flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors duration-150',
-                active ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'
+                'flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded-full py-1.5 text-[10px] font-semibold transition-colors duration-300',
+                active ? 'bg-ink text-canvas' : 'text-muted'
               )}
             >
-              <Icon size={18} />
-              {label}
+              <Icon size={19} weight={active ? 'fill' : 'regular'} />
+              <span className="max-w-full truncate px-1">{label}</span>
             </Link>
           );
         })}

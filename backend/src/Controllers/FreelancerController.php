@@ -38,6 +38,14 @@ class FreelancerController
         App::success(App::paginate($apps, count($apps)));
     }
 
+    public function search(): void
+    {
+        $search  = trim((string)($_GET['search'] ?? ''));
+        $country = isset($_GET['country']) && $_GET['country'] !== '' ? (string)$_GET['country'] : null;
+        $freelancers = (new FreelancerProfile())->search($search, $country);
+        App::success(App::paginate($freelancers, count($freelancers)));
+    }
+
     public function getFeatured(): void
     {
         $freelancers = (new FreelancerProfile())->getFeatured(20);

@@ -1,15 +1,15 @@
 import { cn } from '@/lib/utils';
 
 const variants = {
-  success: 'bg-success-50 text-success-700 dark:bg-success-900/40 dark:text-success-200',
-  warning: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-  error: 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300',
-  neutral: 'bg-gray-100 text-gray-600 dark:bg-night-card dark:text-gray-300',
+  success: 'bg-success-soft text-success',
+  warning: 'bg-warn-soft text-warn',
+  error: 'bg-danger-soft text-danger',
+  neutral: 'bg-sunken text-ink-soft',
   // aliases kept for existing call sites
-  default: 'bg-gray-100 text-gray-600 dark:bg-night-card dark:text-gray-300',
-  danger: 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300',
-  info: 'bg-gray-100 text-gray-600 dark:bg-night-card dark:text-gray-300',
-  primary: 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300',
+  default: 'bg-sunken text-ink-soft',
+  danger: 'bg-danger-soft text-danger',
+  info: 'bg-sunken text-ink-soft',
+  primary: 'bg-accent-soft text-accent-strong',
 };
 
 interface BadgeProps {
@@ -22,7 +22,7 @@ export function Badge({ children, variant = 'neutral', className }: BadgeProps) 
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap',
+        'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold leading-none',
         variants[variant],
         className
       )}

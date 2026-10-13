@@ -3,19 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Briefcase, Users, PlusCircle, Trash2, Eye } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import { jobsApi, applicationsApi } from '@/lib/api';
 import { Job, Application } from '@/types';
-import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Briefcase, Eye, Plus, Trash, Users } from '@/components/ui/icons';
+import { DashboardHeader, StatTile } from '@/components/dashboard/DashboardHeader';
+import { useConfirm } from '@/components/ui/useConfirm';
 import { formatDate } from '@/lib/utils';
 
 export default function ClientDashboard() {
@@ -23,6 +25,8 @@ export default function ClientDashboard() {
   const tJobs = useTranslations('jobs');
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, isLoading } = useAuth();
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -30,20 +34,41 @@ export default function ClientDashboard() {
   const [postOpen, setPostOpen] = useState(false);
   const [viewApplicantsJob, setViewApplicantsJob] = useState<Job | null>(null);
   const [applicants, setApplicants] = useState<Application[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [confirm, confirmDialog] = useConfirm();
 
   const [form, setForm] = useState({ title: '', description: '', budget: '', country: '', category_id: '' });
 
   useEffect(() => {
-    if (!isLoading && !user) { router.push(`/${locale}/login`); return; }
-    if (user && user.role !== 'client') { router.push(`/${locale}`); return; }
+    if (!isLoading && !user) {
+      router.push(`/${locale}/login`);
+      return;
+    }
+    if (user && user.role !== 'client') {
+      router.push(`/${locale}`);
+      return;
+    }
     if (user) loadJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isLoading]);
+
+  // Arriving from onboarding's "Post your first job" opens the job form straight away
+  useEffect(() => {
+    if (user?.role === 'client' && searchParams.get('post') === '1') {
+      setPostOpen(true);
+      router.replace(pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const loadJobs = () => {
     setLoading(true);
-    jobsApi.getJobs({ client_id: user?.id })
+    jobsApi
+      .getJobs({ client_id: user?.id })
       .then((r) => setJobs(r.data?.data || []))
+      .catch(() => toast.error(t('actionError')))
       .finally(() => setLoading(false));
   };
 
@@ -51,7 +76,8 @@ export default function ClientDashboard() {
     setSaving(true);
     try {
       await jobsApi.createJob({
-        title: form.title, description: form.description,
+        title: form.title,
+        description: form.description,
         budget: form.budget ? Number(form.budget) : undefined,
         country: form.country,
       });
@@ -67,179 +93,204 @@ export default function ClientDashboard() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(t('confirmDelete'))) return;
-    await jobsApi.deleteJob(id);
-    toast.success(t('jobDeleted'));
-    loadJobs();
+    if (!(await confirm(t('confirmDelete')))) return;
+    try {
+      await jobsApi.deleteJob(id);
+      toast.success(t('jobDeleted'));
+      loadJobs();
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || t('actionError'));
+    }
   };
 
   const viewApplicants = async (job: Job) => {
     setViewApplicantsJob(job);
-    const res = await jobsApi.getApplicants(job.id);
-    setApplicants(res.data?.data || []);
+    setApplicantsLoading(true);
+    try {
+      const res = await jobsApi.getApplicants(job.id);
+      setApplicants(res.data?.data || []);
+    } catch {
+      toast.error(t('actionError'));
+    } finally {
+      setApplicantsLoading(false);
+    }
   };
 
   const handleApplicationStatus = async (appId: number, status: string) => {
-    await applicationsApi.updateStatus(appId, status);
-    toast.success(status === 'accepted' ? t('appAccepted') : t('appRejected'));
-    if (viewApplicantsJob) viewApplicants(viewApplicantsJob);
+    try {
+      await applicationsApi.updateStatus(appId, status);
+      toast.success(status === 'accepted' ? t('appAccepted') : t('appRejected'));
+      if (viewApplicantsJob) viewApplicants(viewApplicantsJob);
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || t('actionError'));
+    }
   };
 
   if (!user) return null;
 
-  const statCards = [
-    { label: t('totalJobs'), value: jobs.length, icon: <Briefcase size={18} />, accent: 'border-primary-600', iconColor: 'text-primary-600', caption: t('clientDashboard') },
-    { label: t('openJobs'), value: jobs.filter((j) => j.status === 'open').length, icon: <PlusCircle size={18} />, accent: 'border-success-600', iconColor: 'text-success-600', caption: t('myJobs') },
-    { label: t('totalApplicants'), value: jobs.reduce((s, j) => s + (j.applications_count || 0), 0), icon: <Users size={18} />, accent: 'border-ink dark:border-white', iconColor: 'text-ink dark:text-white', caption: t('applicants') },
+  const stats = [
+    { label: t('totalJobs'), value: jobs.length, icon: <Briefcase size={18} /> },
+    { label: t('openJobs'), value: jobs.filter((j) => j.status === 'open').length, icon: <Plus size={18} /> },
+    { label: t('totalApplicants'), value: jobs.reduce((s, j) => s + (j.applications_count || 0), 0), icon: <Users size={18} /> },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Avatar src={user.avatar} name={user.name} size="lg" />
-          <div>
-            <h1 className="text-2xl font-bold text-ink dark:text-white">{t('hello', { name: user.name })}</h1>
-            <p className="text-text-muted dark:text-gray-400 text-sm">{t('clientDashboard')}</p>
-          </div>
-        </div>
-        <button
-          onClick={() => setPostOpen(true)}
-          className="inline-flex items-center justify-center gap-1.5 bg-primary-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:shadow-lg active:scale-95 transition-all"
-        >
-          <PlusCircle size={16} /> {t('postJob')}
-        </button>
-      </div>
+      <DashboardHeader
+        name={user.name}
+        avatar={user.avatar}
+        title={t('hello', { name: user.name })}
+        subtitle={t('clientDashboard')}
+        actions={
+          <Button arrow onClick={() => setPostOpen(true)} className="pe-3">
+            {t('postJob')}
+          </Button>
+        }
+      />
 
-      {/* Stats — bento cards with colored bottom borders */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className={`bg-white dark:bg-night-card p-6 rounded-xl shadow-card border-b-4 ${stat.accent} hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-text-muted text-xs font-bold uppercase tracking-wider">{stat.label}</span>
-              <span className={stat.iconColor}>{stat.icon}</span>
-            </div>
-            <p className="text-5xl font-bold tracking-tight text-ink dark:text-white leading-none mt-3">{stat.value}</p>
-            <p className="text-xs text-text-muted mt-3">{stat.caption}</p>
-          </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {stats.map((s, i) => (
+          <StatTile key={s.label} {...s} emphasis={i === 0} delay={i + 1} />
         ))}
       </div>
 
-      {/* Jobs table */}
-      <div className="bg-white dark:bg-night-card rounded-xl shadow-card border border-outline-variant/50 dark:border-night-border overflow-hidden">
-        <div className="px-6 py-5 border-b border-line dark:border-night-border flex items-center justify-between">
-          <h2 className="text-lg font-bold text-ink dark:text-white">{t('myJobs')}</h2>
-        </div>
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-12" />)}
+      <section className="shell animate-fade-up [animation-delay:240ms]">
+        <div className="core overflow-hidden">
+          <div className="flex items-center justify-between px-6 pb-4 pt-6">
+            <h2 className="text-lg font-semibold tracking-tight text-ink">{t('myJobs')}</h2>
+            {jobs.length > 0 && <span className="num text-sm text-muted">{jobs.length}</span>}
           </div>
-        ) : jobs.length === 0 ? (
-          <div className="text-center py-16">
-            <Briefcase size={40} className="mx-auto text-muted mb-3" />
-            <p className="text-text-muted dark:text-gray-400">{t('noJobs')}</p>
-            <Button size="sm" className="mt-4" onClick={() => setPostOpen(true)}>{t('postJob')}</Button>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-start">
-              <thead className="bg-surface-container-low dark:bg-night-bg/50">
-                <tr className="text-start">
-                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-start">{t('jobTitle')}</th>
-                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center">{t('status')}</th>
-                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center">{t('applicants')}</th>
-                  <th className="px-6 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-end" aria-label="actions"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line dark:divide-night-border">
-                {jobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-surface-container/60 dark:hover:bg-night-border/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/${locale}/jobs/${job.id}`}
-                        className="font-bold text-ink dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm transition-colors block truncate max-w-xs"
-                      >
-                        {job.title}
-                      </Link>
-                      <p className="text-xs text-text-muted mt-0.5">{formatDate(job.created_at, locale)}</p>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <Badge variant={job.status === 'open' ? 'success' : 'neutral'}>{tJobs(job.status)}</Badge>
-                    </td>
-                    <td className="px-6 py-4 text-center font-bold text-ink dark:text-white text-sm">
-                      {job.applications_count || 0}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => viewApplicants(job)}
-                          aria-label={t('noApplicants')}
-                          className="p-2 text-text-muted hover:text-primary-600 transition-colors rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                        >
-                          <Eye size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(job.id)}
-                          aria-label={t('jobDeleted')}
-                          className="p-2 text-text-muted hover:text-error transition-colors rounded-lg hover:bg-error-container/40 dark:hover:bg-error/10"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
 
-      {/* Post Job Modal */}
+          {loading ? (
+            <div className="space-y-3 px-6 pb-6">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-16" />
+              ))}
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="px-6 pb-6">
+              <EmptyState
+                icon={Briefcase}
+                title={t('noJobs')}
+                action={
+                  <Button size="sm" onClick={() => setPostOpen(true)}>
+                    {t('postJob')}
+                  </Button>
+                }
+              />
+            </div>
+          ) : (
+            <ul className="divide-y divide-line border-t border-line">
+              {jobs.map((job) => (
+                <li
+                  key={job.id}
+                  className="flex flex-col gap-3 px-6 py-4 transition-colors duration-200 hover:bg-sunken/50 sm:flex-row sm:items-center"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/${locale}/jobs/${job.id}`}
+                      className="block truncate font-semibold text-ink transition-colors hover:text-accent"
+                    >
+                      {job.title}
+                    </Link>
+                    <p className="mt-0.5 text-xs text-muted">{formatDate(job.created_at, locale)}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant={job.status === 'open' ? 'success' : 'neutral'}>{tJobs(job.status)}</Badge>
+                    <span className="num inline-flex min-w-[4.5rem] items-center gap-1.5 text-sm text-ink-soft">
+                      <Users size={15} aria-hidden />
+                      {job.applications_count || 0}
+                    </span>
+                    <div className="ms-auto flex items-center gap-1 sm:ms-0">
+                      <button
+                        onClick={() => viewApplicants(job)}
+                        aria-label={`${t('applicants')}: ${job.title}`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-accent-soft hover:text-accent-strong"
+                      >
+                        <Eye size={17} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(job.id)}
+                        aria-label={`Delete ${job.title}`}
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-danger-soft hover:text-danger"
+                      >
+                        <Trash size={17} />
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
       <Modal open={postOpen} onClose={() => setPostOpen(false)} title={t('postJobTitle')} size="lg">
-        <div className="space-y-4">
+        <div className="space-y-5">
           <Input label={t('jobTitle')} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          <Textarea label={t('jobDescription')} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={5} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label={t('budget')} type="number" placeholder="USD" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
+          <Textarea
+            label={t('jobDescription')}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            rows={5}
+          />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label={t('budget')}
+              type="number"
+              inputMode="numeric"
+              placeholder="USD"
+              value={form.budget}
+              onChange={(e) => setForm({ ...form, budget: e.target.value })}
+            />
             <Input label={t('country')} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
           </div>
-          <div className="flex gap-3 justify-end pt-2">
-            <Button variant="ghost" onClick={() => setPostOpen(false)}>{t('cancel')}</Button>
-            <Button onClick={handlePost} loading={saving}>{t('postJobBtn')}</Button>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={() => setPostOpen(false)}>
+              {t('cancel')}
+            </Button>
+            <Button onClick={handlePost} loading={saving}>
+              {t('postJobBtn')}
+            </Button>
           </div>
         </div>
       </Modal>
 
-      {/* Applicants Modal */}
       <Modal open={!!viewApplicantsJob} onClose={() => setViewApplicantsJob(null)} title={viewApplicantsJob?.title} size="lg">
-        {applicants.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">{t('noApplicants')}</div>
+        {applicantsLoading ? (
+          <div className="space-y-3">
+            {[...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="h-20" />
+            ))}
+          </div>
+        ) : applicants.length === 0 ? (
+          <EmptyState icon={Users} title={t('noApplicants')} className="py-10" />
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {applicants.map((app) => (
-              <li key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-ivory dark:bg-night-bg rounded-card border border-line dark:border-night-border">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Avatar src={app.freelancer?.avatar} name={app.freelancer?.name || 'F'} size="sm" />
+              <li
+                key={app.id}
+                className="flex flex-col gap-3 rounded-2xl bg-sunken/60 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar src={app.freelancer?.avatar} name={app.freelancer?.name || 'F'} size="md" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink dark:text-white truncate">{app.freelancer?.name}</p>
-                    {app.cover_letter && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 max-w-xs">{app.cover_letter}</p>
-                    )}
+                    <p className="truncate text-sm font-semibold text-ink">{app.freelancer?.name}</p>
+                    {app.cover_letter && <p className="line-clamp-2 max-w-sm text-xs text-muted">{app.cover_letter}</p>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex shrink-0 items-center gap-2">
                   <Badge variant={app.status === 'accepted' ? 'success' : app.status === 'rejected' ? 'error' : 'warning'}>
                     {t(app.status)}
                   </Badge>
                   {app.status === 'pending' && (
                     <>
-                      <Button size="sm" onClick={() => handleApplicationStatus(app.id, 'accepted')}>{t('accept')}</Button>
-                      <Button size="sm" variant="danger" onClick={() => handleApplicationStatus(app.id, 'rejected')}>{t('reject')}</Button>
+                      <Button size="sm" onClick={() => handleApplicationStatus(app.id, 'accepted')}>
+                        {t('accept')}
+                      </Button>
+                      <Button size="sm" variant="danger" onClick={() => handleApplicationStatus(app.id, 'rejected')}>
+                        {t('reject')}
+                      </Button>
                     </>
                   )}
                 </div>
@@ -248,6 +299,7 @@ export default function ClientDashboard() {
           </ul>
         )}
       </Modal>
+      {confirmDialog}
     </div>
   );
 }

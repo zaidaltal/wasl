@@ -3,40 +3,31 @@ import { cn } from '@/lib/utils';
 
 interface LogoProps {
   locale: string;
-  /** 'auto' switches between light/dark; 'dark' forces the white lockup (for dark panels/footer) */
-  variant?: 'auto' | 'dark';
+  /** 'auto' follows the theme; 'light' forces the white lockup for photo/dark backgrounds */
+  variant?: 'auto' | 'light';
   className?: string;
 }
 
 export function Logo({ locale, variant = 'auto', className }: LogoProps) {
+  const img = 'h-9 w-auto';
   return (
-    <Link href={`/${locale}`} className={cn('flex items-center shrink-0', className)} aria-label="Wasl — وصل">
-      {variant === 'dark' ? (
-        // Footer / dark panel — invert the horizontal logo to all-white
-        <img
-          src="/wasl-logo-horizontal.svg"
-          alt="Wasl وصل"
-          width={104}
-          height={32}
-          className="h-8 w-auto brightness-0 invert"
-        />
+    <Link
+      href={`/${locale}`}
+      aria-label="Wasl | وصل"
+      className={cn('flex shrink-0 items-center rounded-full transition-opacity duration-300 hover:opacity-80', className)}
+    >
+      {variant === 'light' ? (
+        <img src="/wasl-logo-horizontal.svg" alt="Wasl وصل" width={117} height={36} className={cn(img, 'brightness-0 invert')} />
       ) : (
         <>
-          {/* Light mode: horizontal logo as-is (dark ink text) */}
+          <img src="/wasl-logo-horizontal.svg" alt="Wasl وصل" width={117} height={36} className={cn(img, 'dark:hidden')} />
           <img
             src="/wasl-logo-horizontal.svg"
-            alt="Wasl وصل"
-            width={104}
-            height={32}
-            className="h-8 w-auto dark:hidden"
-          />
-          {/* Dark mode: invert to white */}
-          <img
-            src="/wasl-logo-horizontal.svg"
-            alt="Wasl وصل"
-            width={104}
-            height={32}
-            className="h-8 w-auto hidden dark:block brightness-0 invert"
+            alt=""
+            aria-hidden
+            width={117}
+            height={36}
+            className={cn(img, 'hidden brightness-0 invert dark:block')}
           />
         </>
       )}

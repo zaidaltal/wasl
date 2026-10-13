@@ -35,3 +35,6 @@ Thumbs.db
 
 # Stitch reference exports (local only)
 .stitch_assets/
+
+# TypeScript incremental build cache
+*.tsbuildinfo

@@ -2,102 +2,221 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Wasl design tokens.
+  One brand accent (Petra terracotta, echoing the logo's red dot) on cool slate neutrals.
+  Success green is semantic only (accepted, open), never decorative.
+  Shape rule: buttons/chips = full pill, containers = shell (1.75rem) + core (1.375rem), fields = 0.75rem.
+*/
 @layer base {
-  html {
-    font-family: var(--font-sans), 'IBM Plex Sans', sans-serif;
-    scroll-behavior: smooth;
+  :root {
+    --canvas: 245 246 248;
+    --surface: 252 252 253;
+    --sunken: 235 237 241;
+    --ink: 17 20 27;
+    --ink-soft: 58 64 78;
+    --muted: 98 106 122;
+    --line: 221 224 231;
+    --accent: 191 74 31;
+    --accent-strong: 154 56 21;
+    --accent-soft: 251 233 224;
+    --on-accent: 255 251 248;
+    --success: 21 128 61;
+    --success-soft: 220 243 228;
+    --warn: 161 98 7;
+    --warn-soft: 252 243 222;
+    --danger: 185 28 28;
+    --danger-soft: 253 232 232;
+    --shadow: 15 23 42;
+    color-scheme: light;
   }
 
-  html[dir='rtl'] {
-    font-family: var(--font-arabic), 'IBM Plex Sans Arabic', sans-serif;
+  .dark {
+    --canvas: 12 14 19;
+    --surface: 19 22 29;
+    --sunken: 26 30 38;
+    --ink: 236 238 243;
+    --ink-soft: 194 199 210;
+    --muted: 142 149 164;
+    --line: 38 43 54;
+    --accent: 238 128 92;
+    --accent-strong: 245 160 130;
+    --accent-soft: 56 30 22;
+    --on-accent: 24 10 5;
+    --success: 74 222 128;
+    --success-soft: 18 48 30;
+    --warn: 234 179 8;
+    --warn-soft: 48 38 10;
+    --danger: 248 113 113;
+    --danger-soft: 54 20 20;
+    --shadow: 0 0 0;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  html[dir='rtl'] body {
+    font-family: var(--font-arabic), var(--font-sans), system-ui, sans-serif;
   }
 
   body {
-    @apply bg-surface dark:bg-night-bg text-text-primary dark:text-white antialiased overflow-x-hidden;
+    @apply bg-canvas text-ink antialiased overflow-x-hidden;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    @apply bg-accent text-accent-on;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-canvas;
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
   }
-
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-night-card;
+    background: transparent;
   }
-
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-night-border rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted;
+    @apply bg-line rounded-full;
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 }
 
 @layer components {
-  .container-custom {
-    @apply max-w-content mx-auto px-4 sm:px-6 lg:px-8;
+  .container-page {
+    @apply max-w-page mx-auto px-4 sm:px-6 lg:px-10;
   }
 
-  .page-title {
-    @apply text-2xl sm:text-3xl font-bold text-ink dark:text-white;
+  /* Double-bezel container: outer tray + inner plate with concentric radii */
+  .shell {
+    @apply rounded-shell p-1.5 bg-ink/[0.035] ring-1 ring-ink/[0.06];
+  }
+  .core {
+    @apply rounded-core bg-surface shadow-inner-hi dark:shadow-inner-hi-dark;
   }
 
-  .section-title {
-    @apply text-3xl sm:text-4xl font-bold text-ink dark:text-white;
+  .eyebrow {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] bg-accent-soft text-accent-strong;
   }
 
-  /* Abstract dot-grid pattern for hero / brand panels */
-  .bg-dot-grid {
-    background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
-    background-size: 24px 24px;
+  .display {
+    @apply font-display font-semibold tracking-[-0.022em] leading-[1.04];
+    font-variation-settings: 'opsz' 96;
+  }
+  html[dir='rtl'] .display {
+    @apply font-arabic tracking-normal leading-[1.25];
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Material Symbols Outlined — self-hosted, no CDN dependency */
-@font-face {
-  font-family: 'Material Symbols Outlined';
-  font-style: normal;
-  font-weight: 100 700;
-  font-display: block;
-  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+/* Fixed grain overlay: breaks digital flatness without repainting scroll content */
+.grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .grain::before {
+  opacity: 0.05;
 }
 
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-/* Scroll-reveal animation (see useReveal hook) */
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease-out;
-}
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
+/*
+  Scroll reveal. Content is only hidden once JS has marked <html> as ready,
+  so the page stays fully readable if scripts fail.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(6px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--d, 0) * 80ms);
+  }
+  .reveal-ready [data-reveal].is-in {
     opacity: 1;
     transform: none;
-    transition: none;
+    filter: none;
   }
-  .animate-float {
-    animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+  Girih-style 8-point star lattice: the one decorative motif, drawn from Islamic geometric tiling.
+  Coloured with currentColor via mask, so text-* utilities set its tone.
+*/
+.pattern-girih {
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' fill='none' stroke='black' stroke-width='1'%3E%3Cpath d='M30 12 48 30 30 48 12 30Z'/%3E%3Cpath d='M17.3 17.3h25.4v25.4H17.3Z'/%3E%3Cpath d='M30 0v12M60 30H48M30 60V48M0 30h12M0 0l17.3 17.3M60 0 42.7 17.3M60 60 42.7 42.7M0 60l17.3-17.3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' fill='none' stroke='black' stroke-width='1'%3E%3Cpath d='M30 12 48 30 30 48 12 30Z'/%3E%3Cpath d='M17.3 17.3h25.4v25.4H17.3Z'/%3E%3Cpath d='M30 0v12M60 30H48M30 60V48M0 30h12M0 0l17.3 17.3M60 0 42.7 17.3M60 60 42.7 42.7M0 60l17.3-17.3'/%3E%3C/svg%3E");
+  -webkit-mask-size: 60px 60px;
+  mask-size: 60px 60px;
+}
+
+/* Connector line in the hero: draws itself once, then a dot travels along it */
+@keyframes draw-line {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.draw-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-line 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+@keyframes node-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.node-in {
+  transform: translate(-50%, -50%);
+  animation: node-in 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw-line { stroke-dashoffset: 0; animation: none; }
+  .node-in { animation: none; }
 }

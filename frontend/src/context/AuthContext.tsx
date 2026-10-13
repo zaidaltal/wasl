@@ -8,7 +8,7 @@ import { authApi } from '@/lib/api';
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -30,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { token, user: userData } = res.data.data;
     setAuth(token, userData);
     setUser(userData);
+    return userData as User;
   }, []);
 
   const logout = useCallback(() => {
@@ -41,7 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUser = useCallback((updatedUser: User) => {
     setUser(updatedUser);
     import('js-cookie').then((Cookies) => {
-      Cookies.default.set('wasl_user', JSON.stringify(updatedUser), { expires: 7 });
+      Cookies.default.set('wasl_user', JSON.stringify(updatedUser), {
+        expires: 7,
+        sameSite: 'lax',
+        secure: window.location.protocol === 'https:',
+      });
     });
   }, []);
 
